@@ -1,0 +1,51 @@
+[project]
+name = "itm"
+version = "0.1.0"
+description = "Incident Time Machine: deterministic, offline root-cause reconstruction from logs and traces"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Andre Buzzo" }]
+keywords = ["observability", "incident-response", "rca", "sre", "tracing"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: System :: Monitoring",
+]
+# Runtime is standard library only. Nothing may be added here.
+dependencies = []
+
+[project.scripts]
+itm = "itm.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["itm"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "perf: performance budget test (slow)",
+    "bench: benchmark floor test",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["itm", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]

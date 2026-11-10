@@ -1,0 +1,10 @@
+# Keep line endings stable across platforms so golden files and generated
+# reports hash identically on Linux, macOS and Windows.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

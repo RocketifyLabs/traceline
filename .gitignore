@@ -1,0 +1,25 @@
+# --- planning notes: never committed (see product.md compliance note) ---
+product.md
+*.planning.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# build/runtime output
+out/
+dist/
+build/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
