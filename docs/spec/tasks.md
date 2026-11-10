@@ -99,5 +99,14 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
   **Accept:** opens from `file://` with no server and no network.
 - [ ] **T21 Demo video.** 2-3 minutes.
   **Accept:** uploaded and linked in the README.
-- [ ] **T22 Final rebuild check.** Judge-style rebuild from scratch.
+  **Blocked:** recording a screen-capture video is not something this environment can do.
+  The script is ready in `docs/spec/spec.md` §13 and every command it calls is verified
+  working, so the video is a recording session, not remaining development.
+  **Workaround until then:** `site/index.html` is a live, clickable version of the same
+  walkthrough (3 real reports plus the benchmark table), and `make demo` reproduces the
+  demo segment exactly.
+- [x] **T22 Final rebuild check.** Judge-style rebuild from scratch.
   **Accept:** `make verify` passes on a clean clone, tests offline, nothing missing.
+  **Verified:** a clean `git clone` builds with `GOPROXY=off CGO_ENABLED=0`, the full suite
+  passes, and `itm demo --seed 7` from that clone produces byte-identical `report.html`,
+  `report.pdf`, `summary.md`, `result.json` and all three SVGs compared to the local build.
