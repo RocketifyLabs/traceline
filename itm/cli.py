@@ -39,6 +39,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_analyze.add_argument("--out", required=True, help="output directory")
     p_analyze.add_argument("--incident-start", default=None, help="ISO 8601 incident window start")
     p_analyze.add_argument("--incident-end", default=None, help="ISO 8601 incident window end")
+    p_analyze.add_argument(
+        "--weights",
+        default=None,
+        help="scoring config JSON (default: itm/rca_weights.json)",
+    )
 
     p_sim = sub.add_parser("simulate", help="generate a seeded fault-injection scenario")
     p_sim.add_argument("--seed", type=int, required=True, help="deterministic random seed")
@@ -51,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_demo = sub.add_parser("demo", help="simulate an incident and analyze it end to end")
     p_demo.add_argument("--out", default="out/demo", help="output directory")
+    p_demo.add_argument("--seed", type=int, default=None, help="scenario seed (default: 7)")
 
     return parser
 

@@ -62,23 +62,32 @@ Each candidate service accumulates four factors, each normalized to `[0, 1]`:
 
 | Factor | Weight | Meaning |
 |---|---|---|
-| `onset` | 0.35 | Earlier onset relative to the incident window start scores higher. |
-| `strength` | 0.30 | Robust z-score of the strongest anomaly on this service. |
+| `onset` | 0.35 | Earlier onset relative to the incident window start scores higher: `1 - (onset - incident_start) / incident_duration`, clamped to `[0, 1]`. |
+| `strength` | 0.30 | Robust z-score of the strongest anomaly on this service, scaled by `z / 10` and clamped to `[0, 1]`. |
 | `explains_downstream` | 0.25 | Fraction of downstream anomalous services whose anomaly this candidate precedes. |
 | `not_explained` | 0.10 | 1.0 if no anomalous dependency precedes it, else 0.0. |
 
-Weights live in `itm/rca_weights.json` (loaded at startup, overridable by flag), so tuning
-is a data change, not a code change. Confidence labels: `high` (top score ≥ 0.60 and margin
-over second ≥ 0.15), `medium` (top ≥ 0.40), `low` (anything above threshold), and
+Weights live in `itm/rca_weights.json` (loaded at startup, overridable with `--weights`), so
+tuning is a data change, not a code change. That file also holds the anomaly `z_threshold`
+(default 3.5) and the window `change_point_mad_k` (default 5.0).
+
+Score is the weighted sum. Confidence labels: `high` (top score ≥ 0.60 and margin over second
+≥ 0.15), `medium` (top ≥ 0.40), `low` (anything above threshold), and
 `insufficient evidence` when nothing passes the anomaly threshold.
+
+Tie-break, in this order and never on dict order: score desc → service name asc → first
+evidence line id asc.
 
 ## Test strategy
 
 - **Unit** — one per detector, templater, ranker, graph builder.
-- **Golden files** — timeline, graph, report (with volatile fields normalized).
+- **Golden files** — timeline, graph, report (normalized: absolute paths, version string and
+  "generated at" timestamps only).
 - **Determinism** — same seed → identical bytes; shuffled input order → identical output.
-- **Negative** — malformed lines, empty input, no-anomaly input, clock skew.
-- **Benchmark floor** (FR-10), **perf** (NFR), **no-network** (socket blocked in every test).
+- **Negative** — malformed lines, empty input, no-anomaly input, clock skew, orphan spans.
+- **Benchmark floor** (FR-10) and **no-network** (socket blocked in every test) run inside
+  `make test`. The **perf** budget (NFR) runs in `make test-perf`, because a judge's test run
+  must stay fast and must not fail on a slow machine.
 - **One command** — `make test`, and it must pass under `--network none`.
 
 ## Risks

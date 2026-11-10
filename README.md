@@ -49,7 +49,9 @@ uv run itm bench --seeds 1001-1020 --out BENCHMARK.md
 ## Test
 
 ```bash
-make test
+make test        # fast, offline, excludes the perf budget
+make test-perf   # perf budget only (machine-dependent, slow)
+make lint
 ```
 
 The whole suite runs with **network access blocked**, so a passing run is proof the tool
@@ -58,6 +60,12 @@ works offline. Same check, the way a reviewer does it:
 ```bash
 make verify       # docker build -t itm . && docker run --rm --network none itm make test
 ```
+
+## Scoring configuration
+
+Ranking weights and detection thresholds live in `itm/rca_weights.json` and can be
+overridden per run with `itm analyze --weights <path>`. Defaults are documented in
+`docs/spec/plan.md`; the anomaly threshold is a robust z-score of 3.5.
 
 ## Input format
 

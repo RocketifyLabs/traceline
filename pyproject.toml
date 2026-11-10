@@ -32,6 +32,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["itm"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"itm/rca_weights.json" = "itm/rca_weights.json"
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
