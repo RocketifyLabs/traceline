@@ -22,7 +22,7 @@ mistaken for a result. Progress lives in `docs/spec/tasks.md`.
 ## Requirements
 
 - Python 3.12 (pinned in `.python-version`)
-- [`uv`](https://docs.astral.sh/uv/) for the development environment
+- [`uv`](https://docs.astral.sh/uv/) `0.13.7` for the development environment
 - Docker, only for the judge-style rebuild check
 
 The runtime is **standard library only**. `pytest` and `ruff` are development-only
@@ -31,7 +31,7 @@ dependencies; nothing else is installed at runtime.
 ## Setup
 
 ```bash
-uv sync          # creates .venv from uv.lock
+uv sync --locked    # creates .venv from uv.lock, exact versions
 ```
 
 ## Run
