@@ -13,12 +13,38 @@ always produces byte-identical output.
 
 ---
 
-## Status
+## Results
 
-Built task by task against `docs/spec/tasks.md`. The CLI is wired but every subcommand
-currently exits non-zero with `not implemented yet` — a stub is never mistaken for a result.
-Progress lives in `docs/spec/tasks.md`; the reasoning behind the stack is in
-`docs/DECISIONS.md`.
+**Top-1 accuracy 90% · Top-3 95% · zero misses** on 20 held-out seeded incidents that were
+never used for tuning.
+
+| Metric | Value |
+|---|---|
+| Held-out seeds | 1001-1020 (frozen) |
+| Top-1 accuracy | **90.0%** |
+| Top-3 accuracy | 95.0% |
+| Speed, spec volume (17k logs / 54k spans) | **0.75 s** |
+
+Per fault type, every fault scores 100% top-1 except `noisy_neighbour` (0%), which is the
+distractor scenario built specifically to defeat this method. The full table, including the
+two misses, is in [`BENCHMARK.md`](BENCHMARK.md).
+
+**Honest limitation.** The simulator is written by this same project. These numbers describe
+how well the method recovers a cause from *this* generator's behaviour; they are not a claim
+about real production systems.
+
+## Try it
+
+```bash
+make demo                      # simulate an incident, analyze it, write out/demo/
+open out/demo/report.html      # self-contained report: no server, no network
+```
+
+Or against your own capture:
+
+```bash
+go run ./cmd/itm analyze --logs logs.jsonl --spans spans.jsonl --out out/report
+```
 
 ## Requirements
 
@@ -28,26 +54,67 @@ Progress lives in `docs/spec/tasks.md`; the reasoning behind the stack is in
 There are **no third-party dependencies**: `go.mod` has no `require` block, and a test fails
 if one ever appears.
 
-## Build and run
+## Output
+
+One run produces, in the output directory:
+
+| File | What it is |
+|---|---|
+| `report.html` | Self-contained report — inline CSS and SVG. Zero external requests, opens from `file://`. |
+| `report.pdf` | The same report as a printable vector PDF (A4). |
+| `charts/*.svg` | Each chart standalone: `error-rate.svg`, `timeline.svg`, `dependencies.svg`. |
+| `summary.md` | Short Markdown summary for a postmortem. |
+| `result.json` | Machine-readable ranked causes with evidence ids. |
+
+PNG is deliberately not produced: raster text needs a font renderer, and vector output is
+crisper, diffable and golden-testable. Export from the browser if you need a raster.
+See `docs/DECISIONS.md` D-002.
+
+## Commands
 
 ```bash
-make build          # static binary at bin/itm
-./bin/itm --help
+go run ./cmd/itm analyze  --logs l.jsonl --spans s.jsonl --out out/report
+go run ./cmd/itm simulate --seed 7 --out out/scenario
+go run ./cmd/itm bench    --seeds 1001-1020 --out BENCHMARK.md
+go run ./cmd/itm demo     --out out/demo --seed 7
 ```
 
-```bash
-go run ./cmd/itm demo                      # simulate an incident, analyze it, write out/demo/
-go run ./cmd/itm analyze --logs logs.jsonl --spans spans.jsonl --out out/report
-go run ./cmd/itm simulate --seed 7 --out out/scenario
-go run ./cmd/itm bench --seeds 1001-1020 --out BENCHMARK.md
+Exit codes: `0` success · `1` analysis failed or refused · `2` usage error.
+
+## How the ranking works
+
+Four factors, each normalized to `[0,1]`, combined with documented weights:
+
+| Factor | Weight | Meaning |
+|---|---|---|
+| `onset` | 0.35 | Earlier relative to the window start scores higher |
+| `strength` | 0.30 | Robust z-score of the strongest anomaly (`z/10`, capped) |
+| `explains_downstream` | 0.25 | Fraction of its anomalous **dependents** whose onset it precedes |
+| `not_explained` | 0.10 | 1.0 if no dependency of its own is anomalous and earlier |
+
+Every candidate reports its full breakdown, so a ranking can be audited rather than trusted.
+If nothing passes the anomaly threshold, the answer is **"insufficient evidence"** — never a
+confident guess.
+
+## Input format
+
+Logs and spans are JSONL, one JSON object per line. Malformed lines are skipped and counted
+by reason, never fatal.
+
+```jsonc
+// logs.jsonl
+{"ts":"2026-10-16T10:00:01Z","service":"api-edge","level":"error","msg":"upstream timeout after 3000ms","trace_id":"a1b2c3","fields":{"route":"/checkout"}}
+
+// spans.jsonl
+{"trace_id":"a1b2c3","span_id":"s1","parent_span_id":null,"service":"api-edge","name":"GET /checkout","start":"2026-10-16T10:00:00Z","end":"2026-10-16T10:00:03Z","status":"error","attrs":{"http.status_code":500}}
 ```
 
 ## Test
 
 ```bash
-make test           # full suite, offline
+make test           # full suite, offline, fast
+make test-perf      # perf budget + scaling check (slow, machine-dependent)
 make lint           # go vet + gofmt check
-make test-perf      # perf/benchmark measures (slow, machine-dependent)
 ```
 
 Both proofs that matter, run the way a reviewer runs them:
@@ -60,42 +127,13 @@ make verify         # docker build + docker run --network none make test
 `make test-offline` is the strong form of the offline claim: if any code path needed the
 network, the build would fail before a single test ran.
 
-## Output
+## Docs
 
-One run produces, in the output directory:
-
-| File | What it is |
-|---|---|
-| `report.html` | Self-contained report — inline CSS, JS and SVG. Zero external requests, opens from `file://`. |
-| `report.pdf` | The same report as a printable vector PDF (A4 landscape). |
-| `charts/*.svg` | Each chart also standalone: `error-rate.svg`, `timeline.svg`, `dependencies.svg`. |
-| `summary.md` | Short Markdown summary for a postmortem. |
-| `result.json` | Machine-readable ranked causes with evidence ids. |
-
-PNG is deliberately not produced: raster text needs a font renderer, and vector output is
-crisper, diffable and golden-testable. Export from the browser if you need a raster.
-See `docs/DECISIONS.md` D-002.
-
-## Input format
-
-Logs and spans are JSONL, one JSON object per line. Malformed lines are skipped and
-counted, never fatal.
-
-```jsonc
-// logs.jsonl
-{"ts":"2026-10-16T10:00:01Z","service":"api-edge","level":"error","msg":"upstream timeout after 3000ms","trace_id":"a1b2c3","fields":{"route":"/checkout"}}
-
-// spans.jsonl
-{"trace_id":"a1b2c3","span_id":"s1","parent_span_id":null,"service":"api-edge","name":"GET /checkout","start":"2026-10-16T10:00:00Z","end":"2026-10-16T10:00:03Z","status":"error","attrs":{"http.status_code":500}}
-```
-
-## Benchmark honesty
-
-ITM ships a seeded fault-injection simulator and measures how often it ranks the true root
-cause first. The simulator is authored by this same project, so the numbers are **indicative
-of the method's behaviour on these scenarios, not a claim about real production systems**.
-Tuning uses development seeds `1-40`; evaluation uses held-out seeds `1001-1020`, which are
-frozen and never used for tuning. `BENCHMARK.md` is regenerated by `make bench`.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — why Go, why no PNG, why this scope.
+- [`docs/spec/spec.md`](docs/spec/spec.md) — requirements with acceptance criteria.
+- [`docs/spec/plan.md`](docs/spec/plan.md) — architecture and package contracts.
+- [`docs/spec/constitution.md`](docs/spec/constitution.md) — the non-negotiables.
+- [`docs/spec/tasks.md`](docs/spec/tasks.md) — progress.
 
 ## License
 
