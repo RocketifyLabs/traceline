@@ -13,6 +13,7 @@ package bench
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 	"time"
@@ -27,6 +28,14 @@ import (
 var (
 	DevSeeds     = SeedRange{From: 1, To: 40}
 	HeldOutSeeds = SeedRange{From: 1001, To: 1020}
+	// ExtendedSeeds is a larger evaluation set, disjoint from both of the above
+	// and from anything used for tuning.
+	//
+	// A 20-scenario held-out set cannot distinguish 90% from 100%: the confidence
+	// interval is roughly +/- 11 points. Reporting 100% on n=20 would be honest
+	// arithmetic and a misleading claim, so the extended set exists to give the
+	// headline number enough sample to mean something.
+	ExtendedSeeds = SeedRange{From: 5000, To: 5499}
 )
 
 // SeedRange is an inclusive range of seeds.
@@ -223,6 +232,10 @@ type FaultResult struct {
 //
 // The limitation paragraph is not optional: a benchmark whose caveats live only
 // in a README is a benchmark that will be quoted without them.
+//
+// Sample size is reported next to every accuracy, because "100% on 20 scenarios"
+// and "97% on 500" are not the same claim and the first one is arithmetic
+// theatre.
 func (r Result) Markdown(generatedFor string) string {
 	var b strings.Builder
 	b.WriteString("# Benchmark\n\n")
@@ -232,8 +245,8 @@ func (r Result) Markdown(generatedFor string) string {
 	b.WriteString("**Limitation, stated first.** The simulator is written by the same project that\n")
 	b.WriteString("does the analysis. These numbers describe how well the method recovers a cause\n")
 	b.WriteString("from *this* generator's behaviour; they are not a claim about real production\n")
-	b.WriteString("systems. Tuning used development seeds only; the evaluation range below is\n")
-	b.WriteString("frozen and was not used for tuning.\n\n")
+	b.WriteString("systems. Tuning used development seeds only; the evaluation ranges below are\n")
+	b.WriteString("frozen and were not used for tuning.\n\n")
 
 	fmt.Fprintf(&b, "## Summary\n\n")
 	fmt.Fprintf(&b, "| Metric | Value |\n|---|---|\n")
@@ -241,9 +254,17 @@ func (r Result) Markdown(generatedFor string) string {
 	fmt.Fprintf(&b, "| Scenarios | %d |\n", len(r.Outcomes))
 	fmt.Fprintf(&b, "| **Top-1 accuracy** | **%.1f%%** |\n", r.Top1*100)
 	fmt.Fprintf(&b, "| Top-3 accuracy | %.1f%% |\n", r.Top3*100)
+	fmt.Fprintf(&b, "| 95%% confidence interval on top-1 | ±%.1f points |\n", r.ConfidenceInterval95()*100)
 	fmt.Fprintf(&b, "| Mean time-to-detect | %.1fs |\n", r.MeanTTD)
 	fmt.Fprintf(&b, "| True cause not in candidates | %d |\n", r.Misses)
 	fmt.Fprintf(&b, "| Insufficient evidence returned | %d |\n\n", r.NoEvidence)
+
+	if len(r.Outcomes) < 100 {
+		fmt.Fprintf(&b, "> **Sample-size caveat.** %d scenarios gives a confidence interval of roughly\n"+
+			"> ±%.0f points, so this percentage should be read as a range. The extended\n"+
+			"> evaluation set (500 scenarios) exists for the headline number.\n\n",
+			len(r.Outcomes), r.ConfidenceInterval95()*100)
+	}
 
 	b.WriteString("## Per fault type\n\n")
 	b.WriteString("| Fault | Scenarios | Top-1 | Top-3 | Mean TTD |\n")
@@ -268,6 +289,20 @@ func (r Result) Markdown(generatedFor string) string {
 		fmt.Fprintf(&b, "\n---\n\nGenerated from %s.\n", generatedFor)
 	}
 	return b.String()
+}
+
+// ConfidenceInterval95 is the half-width of the 95% interval on Top-1 accuracy,
+// using the normal approximation for a proportion.
+//
+// Reported because a percentage without its sample size invites a claim the data
+// cannot support.
+func (r Result) ConfidenceInterval95() float64 {
+	n := len(r.Outcomes)
+	if n == 0 {
+		return 0
+	}
+	p := r.Top1
+	return 1.96 * math.Sqrt(p*(1-p)/float64(n))
 }
 
 // sortedOutcomes returns outcomes ordered by seed, for reproducible output.

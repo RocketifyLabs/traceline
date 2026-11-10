@@ -15,19 +15,27 @@ always produces byte-identical output.
 
 ## Results
 
-**Top-1 accuracy 90% · Top-3 95% · zero misses** on 20 held-out seeded incidents that were
-never used for tuning.
+**Top-1 accuracy 97.0% · Top-3 100%** on 500 held-out seeded incidents never used for tuning
+(95% interval ±1.5 points).
 
 | Metric | Value |
 |---|---|
-| Held-out seeds | 1001-1020 (frozen) |
-| Top-1 accuracy | **90.0%** |
-| Top-3 accuracy | 95.0% |
+| Evaluation seeds | 5000-5499 (frozen, disjoint from tuning) |
+| Scenarios | 500 |
+| Top-1 accuracy | **97.0% ± 1.5** |
+| Top-3 accuracy | **100%** |
+| True cause missing from candidates | 0 |
 | Speed, spec volume (17k logs / 54k spans) | **0.75 s** |
 
-Per fault type, every fault scores 100% top-1 except `noisy_neighbour` (0%), which is the
-distractor scenario built specifically to defeat this method. The full table, including the
-two misses, is in [`BENCHMARK.md`](BENCHMARK.md).
+Per fault type, top-1 ranges from 92.7% (`bad_deploy`) to 100% (`timeout_cascade`). The
+scenarios include background noise on healthy services, a distractor service that is loud in
+the logs without failing, and a transient error burst in the baseline — so "earliest anomaly"
+is not a free win. Full tables in [`BENCHMARK.md`](BENCHMARK.md).
+
+**On sample size.** An earlier version reported 100% on the 20-scenario held-out set. That
+was arithmetically true and misleading: 20 scenarios cannot distinguish 90% from 100%, and
+the interval was ±11 points. The 500-scenario set exists because the headline number needed
+enough sample to mean something.
 
 **Honest limitation.** The simulator is written by this same project. These numbers describe
 how well the method recovers a cause from *this* generator's behaviour; they are not a claim
@@ -88,7 +96,7 @@ Four factors, each normalized to `[0,1]`, combined with documented weights:
 | Factor | Weight | Meaning |
 |---|---|---|
 | `onset` | 0.35 | Earlier relative to the window start scores higher |
-| `strength` | 0.30 | Robust z-score of the strongest anomaly (`z/10`, capped) |
+| `strength` | 0.30 | Robust z-score of the strongest anomaly, on a log scale so a marginal signal cannot tie with a decisive one |
 | `explains_downstream` | 0.25 | Fraction of its anomalous **dependents** whose onset it precedes |
 | `not_explained` | 0.10 | 1.0 if no dependency of its own is anomalous and earlier |
 

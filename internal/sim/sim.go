@@ -75,6 +75,16 @@ type Config struct {
 	RequestsPerSecond int
 	// MaxServices bounds the topology size.
 	MaxServices int
+	// BackgroundNoise is the per-service probability of an unrelated error log
+	// each second, independent of the fault.
+	//
+	// Without it every service is clean before the fault, which makes the
+	// earliest anomaly trivially the cause and flatters the benchmark: a real
+	// capture always has some services that were already flaky.
+	BackgroundNoise float64
+	// NoiseBurst makes a random healthy service produce a short burst of errors
+	// somewhere in the baseline, imitating a brief unrelated wobble.
+	NoiseBurst bool
 }
 
 // DefaultConfig produces a scenario small enough to run 20 of them in a test.
@@ -84,6 +94,20 @@ func DefaultConfig() Config {
 		BaselineFraction:  0.55,
 		RequestsPerSecond: 6,
 		MaxServices:       6,
+		BackgroundNoise:   0.06,
+		NoiseBurst:        true,
+	}
+}
+
+// EasyConfig disables the realistic noise, for tests that need a clean signal.
+func EasyConfig() Config {
+	return Config{
+		Duration:          6 * time.Minute,
+		BaselineFraction:  0.55,
+		RequestsPerSecond: 6,
+		MaxServices:       6,
+		BackgroundNoise:   0,
+		NoiseBurst:        false,
 	}
 }
 
@@ -117,13 +141,22 @@ func Generate(seed int64, fault string, cfg Config) Scenario {
 	// Pick the fault target. Deterministic: the rng sequence is fixed.
 	target := topology.services[rng.Intn(len(topology.services))]
 
-	// The noisy-neighbour fault is a distractor: it makes a service loud while
-	// another service is the real cause. That is the point of the scenario.
+	// The noisy-neighbour scenario needs TWO roles, and getting them confused
+	// made the scenario unsolvable:
+	//
+	//   target  - the service that actually breaks (gets the fault profile)
+	//   noisy   - a different service that is loud in the logs but healthy
+	//
+	// An earlier version treated the LOUD service as the target and picked the
+	// "true cause" from the leftovers, so the true cause received no fault at
+	// all and only inherited collateral damage. The scenario then had no correct
+	// answer, and the analysis was scored against a wrong label.
 	realCause := target
+	noisy := ""
 	if fault == FaultNoisyNeighbour {
-		realCause = topology.services[rng.Intn(len(topology.services))]
-		if realCause == target {
-			realCause = topology.services[(indexOf(topology.services, target)+1)%len(topology.services)]
+		noisy = topology.services[rng.Intn(len(topology.services))]
+		if noisy == target {
+			noisy = topology.services[(indexOf(topology.services, target)+1)%len(topology.services)]
 		}
 	}
 	sc.TrueCause = realCause
@@ -138,10 +171,31 @@ func Generate(seed int64, fault string, cfg Config) Scenario {
 		faultEnd:   faultEnd,
 		fault:      fault,
 		target:     target,
+		noisy:      noisy,
 		realCause:  realCause,
 		prof:       prof,
 	}
 	gen.hops = gen.hopsToTarget()
+
+	// A short unrelated error burst somewhere in the baseline. Deterministic
+	// from the same rng, so the scenario stays reproducible.
+	if cfg.NoiseBurst && len(topology.services) > 1 {
+		burstService := topology.services[rng.Intn(len(topology.services))]
+		if burstService == target {
+			burstService = topology.services[(indexOf(topology.services, target)+1)%len(topology.services)]
+		}
+		burstAt := start.Add(time.Duration(float64(faultStart.Sub(start)) * (0.3 + 0.4*rng.Float64())))
+		for i := 0; i < 12; i++ {
+			sc.Logs = append(sc.Logs, model.LogLine{
+				ID:      "burst-" + itoa(i),
+				TS:      burstAt.Add(time.Duration(i) * 200 * time.Millisecond),
+				Service: burstService,
+				Level:   model.LevelError,
+				Msg:     "transient upstream reset",
+			})
+		}
+	}
+
 	gen.run(&sc)
 
 	// Sorted output: the analysis must not depend on generation order, and a
@@ -282,6 +336,7 @@ type generator struct {
 	faultEnd   time.Time
 	fault      string
 	target     string
+	noisy      string
 	realCause  string
 	prof       profile
 	seq        int
@@ -310,11 +365,38 @@ func (g *generator) run(sc *Scenario) {
 		// One root request per tick, walking the call graph.
 		g.emitTrace(sc, at, inFault)
 
-		// The noisy neighbour is loud for the whole fault window, whether or not
-		// it is the real cause.
-		if g.fault == FaultNoisyNeighbour && inFault {
-			sc.Logs = append(sc.Logs, g.log(g.target, at, model.LevelWarn,
+		// Background noise: unrelated errors on healthy services, spread evenly
+		// through the WHOLE timeline, incident window included.
+		//
+		// Applying it only before the fault barely changes anything: a detector
+		// that compares baseline against incident sees the noise on both sides
+		// and cancels it. Noise during the window is what actually competes with
+		// the signal, and it is what a real capture looks like.
+		if g.cfg.BackgroundNoise > 0 {
+			for i, svc := range g.topology.services {
+				if svc == g.target {
+					continue
+				}
+				// One draw per service per tick, in a fixed order, so the rng
+				// sequence does not depend on map iteration.
+				roll := g.rng.Float64()
+				if roll < g.cfg.BackgroundNoise {
+					sc.Logs = append(sc.Logs, g.log(svc, at, model.LevelError,
+						"unrelated transient failure "+itoa(i)))
+				}
+			}
+		}
+
+		// The noisy neighbour is loud for the whole fault window. It emits WARN
+		// lines only: a genuine distractor is alarming in the logs without
+		// actually failing. Giving it errors too made it indistinguishable from
+		// the real cause, which is unfair to any ranking method rather than a
+		// test of discrimination.
+		if g.noisy != "" && inFault {
+			sc.Logs = append(sc.Logs, g.log(g.noisy, at, model.LevelWarn,
 				"elevated queue depth "+itoa(g.rng.Intn(9000)+1000)))
+			sc.Logs = append(sc.Logs, g.log(g.noisy, at, model.LevelWarn,
+				"slow query detected, retrying"))
 		}
 	}
 }

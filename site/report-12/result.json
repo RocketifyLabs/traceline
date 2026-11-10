@@ -9,101 +9,101 @@
   "candidates": [
     {
       "service": "orders",
-      "score": 0.9996,
-      "confidence": "medium",
+      "score": 0.9739,
+      "confidence": "high",
       "breakdown": {
         "onset": 0.999,
-        "strength": 1,
+        "strength": 0.9142,
         "explains_downstream": 1,
         "not_explained": 1
       },
       "evidence_ids": [
-        "log-013178",
-        "log-013183",
-        "log-013193",
-        "log-013206",
-        "log-013216",
-        "log-013228",
-        "log-013241",
-        "log-013245",
-        "log-013259",
-        "log-013267",
-        "log-013271",
-        "log-013278",
-        "log-013283",
-        "log-013291",
-        "log-013295",
-        "log-013302",
-        "log-013306",
-        "log-013316",
-        "log-013320",
-        "log-013330"
+        "log-013364",
+        "log-013369",
+        "log-013381",
+        "log-013388",
+        "log-013403",
+        "log-013415",
+        "log-013419",
+        "log-013428",
+        "log-013432",
+        "log-013441",
+        "log-013446",
+        "log-013455",
+        "log-013460",
+        "log-013469",
+        "log-013473",
+        "log-013485",
+        "log-013494",
+        "log-013498",
+        "log-013505",
+        "log-013510"
       ]
     },
     {
       "service": "auth",
-      "score": 0.8989,
-      "confidence": "medium",
+      "score": 0.5387,
+      "confidence": "low",
       "breakdown": {
         "onset": 0.9969,
-        "strength": 1,
-        "explains_downstream": 1,
-        "not_explained": 0
-      },
-      "evidence_ids": [
-        "log-013200",
-        "log-013214",
-        "log-013226",
-        "log-013239",
-        "log-013252",
-        "log-013314",
-        "log-013328",
-        "log-013341",
-        "log-013368",
-        "log-013381",
-        "log-013406",
-        "log-013421",
-        "log-013434",
-        "log-013447",
-        "log-013498",
-        "log-013510",
-        "log-013560",
-        "log-013594",
-        "log-013640",
-        "log-013691"
-      ]
-    },
-    {
-      "service": "edge",
-      "score": 0.6489,
-      "confidence": "medium",
-      "breakdown": {
-        "onset": 0.9969,
-        "strength": 1,
+        "strength": 0.6327,
         "explains_downstream": 0,
         "not_explained": 0
       },
       "evidence_ids": [
-        "log-013175",
-        "log-013212",
-        "log-013264",
-        "log-013288",
-        "log-013312",
-        "log-013326",
-        "log-013339",
-        "log-013353",
-        "log-013366",
-        "log-013404",
-        "log-013419",
-        "log-013445",
-        "log-013459",
-        "log-013485",
-        "log-013533",
-        "log-013547",
-        "log-013569",
-        "log-013628",
-        "log-013651",
-        "log-013677"
+        "log-013396",
+        "log-013426",
+        "log-013435",
+        "log-013439",
+        "log-013467",
+        "log-013480",
+        "log-013528",
+        "log-013551",
+        "log-013563",
+        "log-013574",
+        "log-013589",
+        "log-013602",
+        "log-013660",
+        "log-013689",
+        "log-013760",
+        "log-013775",
+        "log-013811",
+        "log-013836",
+        "log-013861",
+        "log-013874"
+      ]
+    },
+    {
+      "service": "edge",
+      "score": 0.5334,
+      "confidence": "low",
+      "breakdown": {
+        "onset": 0.9979,
+        "strength": 0.6137,
+        "explains_downstream": 0,
+        "not_explained": 0
+      },
+      "evidence_ids": [
+        "log-013374",
+        "log-013400",
+        "log-013424",
+        "log-013452",
+        "log-013465",
+        "log-013478",
+        "log-013489",
+        "log-013515",
+        "log-013549",
+        "log-013587",
+        "log-013613",
+        "log-013635",
+        "log-013649",
+        "log-013663",
+        "log-013687",
+        "log-013721",
+        "log-013746",
+        "log-013770",
+        "log-013773",
+        "log-013798"
       ]
     }
   ],
@@ -117,12 +117,6 @@
     {
       "at": "2026-10-16T10:03:18Z",
       "kind": "first_anomaly",
-      "service": "edge",
-      "detail": "template_burst"
-    },
-    {
-      "at": "2026-10-16T10:03:18Z",
-      "kind": "first_anomaly",
       "service": "orders",
       "detail": "error_rate"
     },
@@ -134,8 +128,20 @@
     },
     {
       "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "edge",
+      "detail": "error_rate"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
       "kind": "cascade",
       "service": "auth",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "cascade",
+      "service": "payments",
       "detail": "first error"
     },
     {
@@ -145,15 +151,9 @@
       "detail": "error_rate"
     },
     {
-      "at": "2026-10-16T10:03:19Z",
+      "at": "2026-10-16T10:03:18Z",
       "kind": "cascade",
       "service": "edge",
-      "detail": "first error"
-    },
-    {
-      "at": "2026-10-16T10:03:20Z",
-      "kind": "cascade",
-      "service": "payments",
       "detail": "first error"
     }
   ],
@@ -162,55 +162,55 @@
       "caller": "auth",
       "callee": "orders",
       "calls": 2161,
-      "errors": 690,
-      "error_rate": 0.3193,
-      "p50_ms": 49.739,
-      "p95_ms": 147.249
+      "errors": 663,
+      "error_rate": 0.3068,
+      "p50_ms": 49.858,
+      "p95_ms": 148.695
     },
     {
       "caller": "auth",
       "callee": "payments",
       "calls": 2161,
-      "errors": 28,
-      "error_rate": 0.013,
-      "p50_ms": 39.798,
-      "p95_ms": 50.63
+      "errors": 23,
+      "error_rate": 0.0106,
+      "p50_ms": 40.278,
+      "p95_ms": 51.08
     },
     {
       "caller": "edge",
       "callee": "auth",
       "calls": 2161,
-      "errors": 264,
-      "error_rate": 0.1222,
-      "p50_ms": 48.321,
-      "p95_ms": 79.335
+      "errors": 254,
+      "error_rate": 0.1175,
+      "p50_ms": 47.728,
+      "p95_ms": 79.022
     },
     {
       "caller": "edge",
       "callee": "orders",
       "calls": 2161,
-      "errors": 685,
-      "error_rate": 0.317,
-      "p50_ms": 49.944,
-      "p95_ms": 146.368
+      "errors": 706,
+      "error_rate": 0.3267,
+      "p50_ms": 49.73,
+      "p95_ms": 148.4
     },
     {
       "caller": "edge",
       "callee": "payments",
       "calls": 2161,
-      "errors": 21,
-      "error_rate": 0.0097,
-      "p50_ms": 39.784,
-      "p95_ms": 50.814
+      "errors": 24,
+      "error_rate": 0.0111,
+      "p50_ms": 40.125,
+      "p95_ms": 50.699
     },
     {
       "caller": "orders",
       "callee": "payments",
       "calls": 4322,
-      "errors": 47,
-      "error_rate": 0.0109,
-      "p50_ms": 39.846,
-      "p95_ms": 50.679
+      "errors": 46,
+      "error_rate": 0.0106,
+      "p50_ms": 39.84,
+      "p95_ms": 50.819
     }
   ],
   "data_quality": {

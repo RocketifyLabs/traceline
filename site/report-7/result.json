@@ -9,101 +9,101 @@
   "candidates": [
     {
       "service": "orders",
-      "score": 0.9996,
-      "confidence": "medium",
+      "score": 0.9452,
+      "confidence": "high",
       "breakdown": {
         "onset": 0.999,
-        "strength": 1,
+        "strength": 0.8186,
         "explains_downstream": 1,
         "not_explained": 1
       },
       "evidence_ids": [
-        "log-020534",
-        "log-020542",
-        "log-020555",
-        "log-020562",
-        "log-020580",
-        "log-020600",
-        "log-020613",
-        "log-020621",
-        "log-020632",
-        "log-020649",
-        "log-020655",
-        "log-020666",
-        "log-020681",
-        "log-020691",
-        "log-020702",
-        "log-020708",
-        "log-020724",
-        "log-020736",
-        "log-020743",
-        "log-020758"
+        "log-020913",
+        "log-020920",
+        "log-020934",
+        "log-020951",
+        "log-020958",
+        "log-020972",
+        "log-020988",
+        "log-020995",
+        "log-021005",
+        "log-021012",
+        "log-021026",
+        "log-021044",
+        "log-021064",
+        "log-021070",
+        "log-021082",
+        "log-021114",
+        "log-021130",
+        "log-021136",
+        "log-021148",
+        "log-021155"
       ]
     },
     {
       "service": "auth",
-      "score": 0.8957,
+      "score": 0.7552,
       "confidence": "medium",
       "breakdown": {
-        "onset": 0.9877,
-        "strength": 1,
+        "onset": 0.999,
+        "strength": 0.5186,
         "explains_downstream": 1,
         "not_explained": 0
       },
       "evidence_ids": [
-        "log-020553",
-        "log-020734",
-        "log-020807",
-        "log-020825",
-        "log-020895",
-        "log-020934",
-        "log-021086",
-        "log-021141",
-        "log-021194",
-        "log-021214",
-        "log-021309",
-        "log-021363",
-        "log-021400",
-        "log-021418",
-        "log-021437",
-        "log-021496",
-        "log-021553",
-        "log-021613",
-        "log-021670",
-        "log-021691"
+        "log-020911",
+        "log-020932",
+        "log-020970",
+        "log-021020",
+        "log-021062",
+        "log-021080",
+        "log-021223",
+        "log-021281",
+        "log-021377",
+        "log-021434",
+        "log-021454",
+        "log-021475",
+        "log-021528",
+        "log-021548",
+        "log-021590",
+        "log-021679",
+        "log-021702",
+        "log-021720",
+        "log-021773",
+        "log-021794"
       ]
     },
     {
       "service": "edge",
-      "score": 0.6428,
+      "score": 0.6302,
       "confidence": "medium",
       "breakdown": {
-        "onset": 0.9794,
+        "onset": 0.9434,
         "strength": 1,
         "explains_downstream": 0,
         "not_explained": 0
       },
       "evidence_ids": [
-        "log-020805",
-        "log-020874",
-        "log-020893",
-        "log-020914",
-        "log-020975",
-        "log-021172",
-        "log-021231",
-        "log-021250",
-        "log-021307",
-        "log-021457",
-        "log-021476",
-        "log-021551",
-        "log-021592",
-        "log-021611",
-        "log-021689",
-        "log-021709",
-        "log-021730",
-        "log-021750",
-        "log-021769",
-        "log-021809"
+        "log-021023",
+        "log-021060",
+        "log-021078",
+        "log-021221",
+        "log-021239",
+        "log-021261",
+        "log-021279",
+        "log-021335",
+        "log-021394",
+        "log-021432",
+        "log-021452",
+        "log-021473",
+        "log-021490",
+        "log-021526",
+        "log-021588",
+        "log-021608",
+        "log-021682",
+        "log-021716",
+        "log-021792",
+        "log-021847"
       ]
     }
   ],
@@ -113,6 +113,12 @@
       "kind": "cascade",
       "service": "orders",
       "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "auth",
+      "detail": "error_rate"
     },
     {
       "at": "2026-10-16T10:03:18Z",
@@ -134,36 +140,30 @@
     },
     {
       "at": "2026-10-16T10:03:18Z",
-      "kind": "first_anomaly",
+      "kind": "cascade",
       "service": "auth",
-      "detail": "template_burst"
+      "detail": "first error"
     },
     {
       "at": "2026-10-16T10:03:19Z",
       "kind": "cascade",
-      "service": "auth",
+      "service": "edge",
       "detail": "first error"
     },
     {
-      "at": "2026-10-16T10:03:20Z",
+      "at": "2026-10-16T10:03:19Z",
       "kind": "first_anomaly",
       "service": "edge",
       "detail": "template_burst"
     },
     {
-      "at": "2026-10-16T10:03:21Z",
-      "kind": "cascade",
-      "service": "edge",
-      "detail": "first error"
-    },
-    {
-      "at": "2026-10-16T10:03:21Z",
+      "at": "2026-10-16T10:03:20Z",
       "kind": "cascade",
       "service": "dbproxy",
       "detail": "first error"
     },
     {
-      "at": "2026-10-16T10:03:28Z",
+      "at": "2026-10-16T10:03:22Z",
       "kind": "cascade",
       "service": "payments",
       "detail": "first error"
@@ -174,73 +174,73 @@
       "caller": "auth",
       "callee": "dbproxy",
       "calls": 2161,
-      "errors": 19,
-      "error_rate": 0.0088,
-      "p50_ms": 39.996,
-      "p95_ms": 50.914
+      "errors": 16,
+      "error_rate": 0.0074,
+      "p50_ms": 39.868,
+      "p95_ms": 50.895
     },
     {
       "caller": "auth",
       "callee": "orders",
       "calls": 2161,
-      "errors": 683,
-      "error_rate": 0.3161,
-      "p50_ms": 49.533,
-      "p95_ms": 123.686
+      "errors": 693,
+      "error_rate": 0.3207,
+      "p50_ms": 49.808,
+      "p95_ms": 122.435
     },
     {
       "caller": "edge",
       "callee": "auth",
       "calls": 2161,
-      "errors": 145,
-      "error_rate": 0.0671,
-      "p50_ms": 46.363,
-      "p95_ms": 70.954
+      "errors": 167,
+      "error_rate": 0.0773,
+      "p50_ms": 46.699,
+      "p95_ms": 71.426
     },
     {
       "caller": "edge",
       "callee": "orders",
       "calls": 2161,
-      "errors": 691,
-      "error_rate": 0.3198,
-      "p50_ms": 50.048,
-      "p95_ms": 123.478
+      "errors": 682,
+      "error_rate": 0.3156,
+      "p50_ms": 49.977,
+      "p95_ms": 123.653
     },
     {
       "caller": "edge",
       "callee": "payments",
       "calls": 2161,
-      "errors": 17,
-      "error_rate": 0.0079,
-      "p50_ms": 39.825,
-      "p95_ms": 50.969
+      "errors": 15,
+      "error_rate": 0.0069,
+      "p50_ms": 40.139,
+      "p95_ms": 50.856
     },
     {
       "caller": "orders",
       "callee": "dbproxy",
       "calls": 4322,
-      "errors": 40,
-      "error_rate": 0.0093,
-      "p50_ms": 40.203,
-      "p95_ms": 50.825
+      "errors": 41,
+      "error_rate": 0.0095,
+      "p50_ms": 39.816,
+      "p95_ms": 50.718
     },
     {
       "caller": "orders",
       "callee": "payments",
       "calls": 4322,
-      "errors": 41,
-      "error_rate": 0.0095,
-      "p50_ms": 39.938,
-      "p95_ms": 50.667
+      "errors": 44,
+      "error_rate": 0.0102,
+      "p50_ms": 39.94,
+      "p95_ms": 50.779
     },
     {
       "caller": "payments",
       "callee": "dbproxy",
       "calls": 6483,
-      "errors": 64,
-      "error_rate": 0.0099,
-      "p50_ms": 39.9,
-      "p95_ms": 50.816
+      "errors": 78,
+      "error_rate": 0.012,
+      "p50_ms": 39.836,
+      "p95_ms": 50.777
     }
   ],
   "data_quality": {

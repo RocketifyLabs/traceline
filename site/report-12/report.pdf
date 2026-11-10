@@ -19,7 +19,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
 endobj
 7 0 obj
-<< /Length 3189 >>
+<< /Length 3183 >>
 stream
 0.059 0.067 0.090 rg
 0 0 842 595 re f
@@ -33,51 +33,51 @@ BT /F3 9.0 Tf 48.00 497.00 Td (baseline 09:43:18.000 -> 10:03:18.000   incident 
 0.545 0.576 0.655 rg
 BT /F1 9.0 Tf 48.00 461.00 Td (MOST LIKELY ROOT CAUSE) Tj ET
 0.898 0.282 0.302 rg
-BT /F2 18.0 Tf 48.00 438.00 Td (orders   \(score 1.00, medium confidence\)) Tj ET
+BT /F2 18.0 Tf 48.00 438.00 Td (orders   \(score 0.97, high confidence\)) Tj ET
 0.545 0.576 0.655 rg
 BT /F1 9.0 Tf 48.00 414.00 Td (RANKED CAUSES) Tj ET
 0.902 0.914 0.937 rg
 BT /F3 8.0 Tf 48.00 401.00 Td (#   service             score conf      onset    str   expl  notex) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 387.00 Td (1   orders               1.00 medium     1.00   1.00   1.00   1.00) Tj ET
+BT /F3 9.0 Tf 48.00 387.00 Td (1   orders               0.97 high       1.00   0.91   1.00   1.00) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 373.00 Td (2   auth                 0.90 medium     1.00   1.00   1.00   0.00) Tj ET
+BT /F3 9.0 Tf 48.00 373.00 Td (2   auth                 0.54 low        1.00   0.63   0.00   0.00) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 359.00 Td (3   edge                 0.65 medium     1.00   1.00   0.00   0.00) Tj ET
+BT /F3 9.0 Tf 48.00 359.00 Td (3   edge                 0.53 low        1.00   0.61   0.00   0.00) Tj ET
 0.545 0.576 0.655 rg
 BT /F1 9.0 Tf 48.00 331.00 Td (TIMELINE) Tj ET
 0.902 0.914 0.937 rg
 BT /F3 9.0 Tf 48.00 317.00 Td (10:03:18.166  cascade        orders           first error) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 303.00 Td (10:03:18.166  first_anomaly  edge             template_burst) Tj ET
+BT /F3 9.0 Tf 48.00 303.00 Td (10:03:18.166  first_anomaly  orders           error_rate) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 289.00 Td (10:03:18.166  first_anomaly  orders           error_rate) Tj ET
+BT /F3 9.0 Tf 48.00 289.00 Td (10:03:18.166  first_anomaly  payments         template_burst) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 275.00 Td (10:03:18.166  first_anomaly  payments         template_burst) Tj ET
+BT /F3 9.0 Tf 48.00 275.00 Td (10:03:18.333  first_anomaly  edge             error_rate) Tj ET
 0.902 0.914 0.937 rg
 BT /F3 9.0 Tf 48.00 261.00 Td (10:03:18.499  cascade        auth             first error) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 247.00 Td (10:03:18.499  first_anomaly  auth             error_rate) Tj ET
+BT /F3 9.0 Tf 48.00 247.00 Td (10:03:18.499  cascade        payments         first error) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 233.00 Td (10:03:19.333  cascade        edge             first error) Tj ET
+BT /F3 9.0 Tf 48.00 233.00 Td (10:03:18.499  first_anomaly  auth             error_rate) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 219.00 Td (10:03:20.333  cascade        payments         first error) Tj ET
+BT /F3 9.0 Tf 48.00 219.00 Td (10:03:18.999  cascade        edge             first error) Tj ET
 0.545 0.576 0.655 rg
 BT /F1 9.0 Tf 48.00 191.00 Td (DEPENDENCIES) Tj ET
 0.545 0.576 0.655 rg
 BT /F3 8.0 Tf 48.00 178.00 Td (caller             callee               calls  errors      p50      p95) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 164.00 Td (auth               orders                2161     690     49ms    147ms) Tj ET
+BT /F3 9.0 Tf 48.00 164.00 Td (auth               orders                2161     663     49ms    148ms) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 150.00 Td (auth               payments              2161      28     39ms     50ms) Tj ET
+BT /F3 9.0 Tf 48.00 150.00 Td (auth               payments              2161      23     40ms     51ms) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 136.00 Td (edge               auth                  2161     264     48ms     79ms) Tj ET
+BT /F3 9.0 Tf 48.00 136.00 Td (edge               auth                  2161     254     47ms     79ms) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 122.00 Td (edge               orders                2161     685     49ms    146ms) Tj ET
+BT /F3 9.0 Tf 48.00 122.00 Td (edge               orders                2161     706     49ms    148ms) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 108.00 Td (edge               payments              2161      21     39ms     50ms) Tj ET
+BT /F3 9.0 Tf 48.00 108.00 Td (edge               payments              2161      24     40ms     50ms) Tj ET
 0.902 0.914 0.937 rg
-BT /F3 9.0 Tf 48.00 94.00 Td (orders             payments              4322      47     39ms     50ms) Tj ET
+BT /F3 9.0 Tf 48.00 94.00 Td (orders             payments              4322      46     39ms     50ms) Tj ET
 
 endstream
 endobj
@@ -114,10 +114,10 @@ xref
 0000000272 00000 n 
 0000000340 00000 n 
 0000000486 00000 n 
-0000003727 00000 n 
-0000003873 00000 n 
+0000003721 00000 n 
+0000003867 00000 n 
 trailer
 << /Size 10 /Root 1 0 R >>
 startxref
-4500
+4494
 %%EOF

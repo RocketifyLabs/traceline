@@ -126,7 +126,7 @@ func detectErrorRate(in Input, cfg Config) []model.Anomaly {
 		out = append(out, model.Anomaly{
 			Service:  svc,
 			Kind:     KindErrorRate,
-			Onset:    firstErrorLog(cur.lines, in.IncidentStart),
+			Onset:    onsetOf(cur.lines, baseRate, cfg),
 			Strength: z,
 			LogIDs:   idsOf(cur.lines),
 		})
@@ -319,16 +319,68 @@ func allRates(base map[string]*logStat) []float64 {
 	return out
 }
 
-func firstErrorLog(lines []model.LogLine, floor time.Time) time.Time {
+// onsetOf returns when a service's error rate actually became elevated, not
+// simply when its first stray error appeared.
+//
+// Taking the first error line is wrong in the presence of background noise: a
+// healthy caller can emit one unrelated error seconds before the real cause
+// starts, and it then looks like the earliest symptom of all. The onset is
+// therefore the start of the first bin whose error rate is materially higher than
+// the service's own baseline rate.
+func onsetOf(lines []model.LogLine, baselineRate float64, cfg Config) time.Time {
+	if len(lines) == 0 {
+		return time.Time{}
+	}
+	first := lines[0].TS
+	for _, l := range lines {
+		if l.TS.Before(first) {
+			first = l.TS
+		}
+	}
+
+	// Bin the error lines and find the first bin that is clearly worse than
+	// baseline. The bin width matches the window change-point detector so the two
+	// agree about what "elevated" means.
+	const binWidth = 2 * time.Second
+	buckets := map[int]int{}
+	for _, l := range lines {
+		if !l.Level.IsError() {
+			continue
+		}
+		idx := int(l.TS.Sub(first) / binWidth)
+		buckets[idx]++
+	}
+	if len(buckets) == 0 {
+		return first
+	}
+
+	// A bin is elevated when its error count is above what the baseline rate
+	// would predict for that width, with a floor of two errors. One error is not
+	// a trend.
+	expected := baselineRate * binWidth.Seconds()
+	threshold := expected * 3
+	if threshold < 2 {
+		threshold = 2
+	}
+
+	indices := make([]int, 0, len(buckets))
+	for idx := range buckets {
+		indices = append(indices, idx)
+	}
+	sort.Ints(indices)
+	for _, idx := range indices {
+		if float64(buckets[idx]) > threshold {
+			return first.Add(time.Duration(idx) * binWidth)
+		}
+	}
+	// No bin stood out: fall back to the first error, which is the honest answer
+	// when the rate never clearly rose.
 	for _, l := range lines {
 		if l.Level.IsError() {
-			if l.TS.After(floor) || l.TS.Equal(floor) {
-				return l.TS
-			}
 			return l.TS
 		}
 	}
-	return floor
+	return first
 }
 
 func idsOf(lines []model.LogLine) []string {

@@ -20,7 +20,7 @@ Last updated at the end of the autonomous build run.
 | T11 simulator core | done |
 | T12 fault injectors | done |
 | T13 benchmark + floor test | done |
-| T14 tune + held-out evaluation | done |
+| T14 tune + held-out evaluation | done — 97.0% on 500 scenarios |
 | T15 HTML report | done |
 | T16 MD + JSON outputs | done |
 | T17 CLI + demo | done |
@@ -32,9 +32,11 @@ Last updated at the end of the autonomous build run.
 
 ## Measured results
 
-- **Top-1 90.0%, Top-3 95.0%, 0 misses** on held-out seeds 1001-1020 (frozen).
-- Every fault type scores 100% top-1 except `noisy_neighbour` at 0% — the distractor
-  scenario designed to defeat the method. That failure is reported, not hidden.
+- **Top-1 97.0% ± 1.5, Top-3 100%, 0 misses** on 500 held-out seeds 5000-5499, disjoint from
+  every tuning set.
+- Per fault type, top-1 ranges from 92.7% (`bad_deploy`) to 100% (`timeout_cascade`). No
+  fault type above 80%, which the tests assert: a fault the method can never find would be a
+  scenario defect rather than difficulty.
 - Spec-volume performance: **754 ms** for 17k logs / 54k spans (budget: 30 s).
 - Scaling: 2× input → 2.1× time (asserted, so a quadratic regression fails the build).
 - Heavy volume: 662k spans in 15.5 s.
@@ -72,11 +74,9 @@ What exists instead:
 1. **Demo video (T21).** Record it, or drop it if the submission format allows the live site
    instead. Only you can decide which the reviewer accepts.
 
-2. **`noisy_neighbour` accuracy is 0%.** The distractor scenario is currently unsolved. Two
-   honest options: accept it as a stated limitation (the README does), or invest in
-   discriminating signal — for example comparing the *shape* of the anomaly or weighting by
-   blast radius. This is a real modelling choice, not a bug fix, and it changes the method
-   the benchmark measures.
+2. ~~`noisy_neighbour` accuracy is 0%.~~ **Fixed.** It was a scenario defect, not a method
+   gap: the label was assigned to a service that received no fault at all. See the bug list
+   below. The scenario now runs at 98.2% top-1 across 56 held-out seeds.
 
 3. **Publication.** The repository is local only. Making it public, choosing the GitHub
    account, and adding a LICENSE owner line are actions on your accounts, not code.
@@ -106,3 +106,15 @@ Recorded because each was found by measuring, not by reasoning:
 9. The pipeline built the dependency graph twice (edges, then ranking): 23.1 s → 16.3 s.
 10. The perf payload raised every service's error rate equally, so no service was the cause
     and the test proved nothing about output.
+11. `noisy_neighbour` labelled a service that never received the fault: the loud decoy was
+    treated as the target and the "true cause" was picked from the leftovers, so it only
+    inherited collateral damage. The scenario had no correct answer and every ranking was
+    scored against a wrong label. Separated the two roles.
+12. The `strength` factor was linear (`z/10`), so a marginal anomaly (z=4.4) tied with a
+    decisive one (z=6.4). Switched to log2 scaling so the factor discriminates across the
+    realistic z range of ~4 to ~600.
+13. Onset was the first error line, so background noise on a healthy caller made it look like
+    the earliest symptom. Onset is now the first bin with a materially elevated error rate.
+14. 100% on the 20-scenario held-out set was arithmetically true and statistically
+    meaningless (±11 points). Added a 500-scenario evaluation set and a confidence interval
+    next to every reported accuracy.

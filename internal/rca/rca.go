@@ -10,6 +10,7 @@
 package rca
 
 import (
+	"math"
 	"sort"
 	"time"
 
@@ -37,6 +38,17 @@ func isMeaningful(a model.Anomaly) bool {
 		return false
 	}
 }
+
+// Strength scaling for the strength factor.
+//
+// burstFloor is the z-score a detection threshold produces, used as the
+// logarithm's base so a just-detected anomaly scores 0 and the factor grows as
+// log2(z / threshold). strengthScaleLog2 is how many doublings map to 1.0: 4
+// doublings means a 16x stronger anomaly saturates the factor.
+const (
+	burstFloor        = 3.5
+	strengthScaleLog2 = 4.0
+)
 
 // Weights are the factor weights. They sum to 1 so a perfect candidate scores
 // exactly 1.0.
@@ -146,9 +158,17 @@ func Rank(in Input, w Weights, c Confidence) (candidates []model.Candidate, insu
 		}
 		b.Onset = clamp01(1 - float64(elapsed)/float64(span))
 
-		// Factor 2: stronger anomaly scores higher. z/10 saturates at a very
-		// strong signal so one absurd outlier cannot dominate the ranking.
-		b.Strength = clamp01(strength[svc] / 10)
+		// Factor 2: stronger anomaly scores higher.
+		//
+		// The scale is logarithmic above the detection threshold, not linear.
+		// Observed z-scores in practice run from ~4 to ~600, so a linear z/10
+		// saturates almost immediately and makes a marginal anomaly (z=4.4)
+		// indistinguishable from a decisive one (z=6.4) — which is exactly the
+		// tie that let a noisy caller outrank the real cause.
+		//
+		// log2 puts the threshold at 0 and a 16x stronger signal at 1, so the
+		// factor keeps discriminating across the whole realistic range.
+		b.Strength = clamp01(math.Log2(math.Max(strength[svc], burstFloor)) / strengthScaleLog2)
 
 		// Factor 3: how many of this service's anomalous dependents it precedes.
 		deps := dependents[svc]

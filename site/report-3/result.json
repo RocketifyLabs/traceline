@@ -10,7 +10,7 @@
     {
       "service": "edge",
       "score": 0.7496,
-      "confidence": "medium",
+      "confidence": "high",
       "breakdown": {
         "onset": 0.999,
         "strength": 1,
@@ -18,26 +18,59 @@
         "not_explained": 1
       },
       "evidence_ids": [
-        "log-005685",
-        "log-005700",
-        "log-005706",
-        "log-005712",
-        "log-005717",
-        "log-005723",
-        "log-005728",
-        "log-005735",
-        "log-005740",
-        "log-005745",
-        "log-005755",
-        "log-005760",
-        "log-005765",
-        "log-005775",
-        "log-005780",
-        "log-005786",
-        "log-005791",
-        "log-005796",
-        "log-005802",
-        "log-005807"
+        "log-005829",
+        "log-005835",
+        "log-005840",
+        "log-005845",
+        "log-005850",
+        "log-005855",
+        "log-005861",
+        "log-005867",
+        "log-005873",
+        "log-005878",
+        "log-005884",
+        "log-005889",
+        "log-005899",
+        "log-005909",
+        "log-005914",
+        "log-005919",
+        "log-005924",
+        "log-005930",
+        "log-005940",
+        "log-005946"
+      ]
+    },
+    {
+      "service": "orders",
+      "score": 0.2667,
+      "confidence": "low",
+      "breakdown": {
+        "onset": 0.0113,
+        "strength": 0.5425,
+        "explains_downstream": 0,
+        "not_explained": 1
+      },
+      "evidence_ids": [
+        "log-005870",
+        "log-005881",
+        "log-005927",
+        "log-005949",
+        "log-005961",
+        "log-005972",
+        "log-005978",
+        "log-006003",
+        "log-006047",
+        "log-006070",
+        "log-006077",
+        "log-006094",
+        "log-006099",
+        "log-006116",
+        "log-006152",
+        "log-006158",
+        "log-006208",
+        "log-006255",
+        "log-006287",
+        "log-006294"
       ]
     }
   ],
@@ -51,29 +84,29 @@
     {
       "at": "2026-10-16T10:03:18Z",
       "kind": "first_anomaly",
+      "service": "auth",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
       "service": "edge",
       "detail": "error_rate"
     },
     {
       "at": "2026-10-16T10:03:18Z",
-      "kind": "first_anomaly",
-      "service": "orders",
-      "detail": "template_burst"
-    },
-    {
-      "at": "2026-10-16T10:03:18Z",
-      "kind": "first_anomaly",
-      "service": "auth",
-      "detail": "template_burst"
-    },
-    {
-      "at": "2026-10-16T10:03:57Z",
       "kind": "cascade",
       "service": "orders",
       "detail": "first error"
     },
     {
-      "at": "2026-10-16T10:04:08Z",
+      "at": "2026-10-16T10:03:19Z",
+      "kind": "first_anomaly",
+      "service": "orders",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:20Z",
       "kind": "cascade",
       "service": "auth",
       "detail": "first error"
@@ -84,19 +117,19 @@
       "caller": "auth",
       "callee": "orders",
       "calls": 2161,
-      "errors": 19,
-      "error_rate": 0.0088,
-      "p50_ms": 40.29,
-      "p95_ms": 50.829
+      "errors": 15,
+      "error_rate": 0.0069,
+      "p50_ms": 40.193,
+      "p95_ms": 50.854
     },
     {
       "caller": "edge",
       "callee": "auth",
       "calls": 2161,
-      "errors": 22,
-      "error_rate": 0.0102,
-      "p50_ms": 40.195,
-      "p95_ms": 50.675
+      "errors": 28,
+      "error_rate": 0.013,
+      "p50_ms": 40.2,
+      "p95_ms": 50.729
     }
   ],
   "data_quality": {
