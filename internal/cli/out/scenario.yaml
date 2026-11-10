@@ -1,0 +1,7 @@
+seed: 0
+fault: crash_loop
+true_cause: orders
+fault_start: 2026-10-16T10:03:18Z
+fault_end: 2026-10-16T10:06:00Z
+logs: 13533
+spans: 30254

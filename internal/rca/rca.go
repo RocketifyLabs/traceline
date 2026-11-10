@@ -199,18 +199,34 @@ func Rank(in Input, w Weights, c Confidence) (candidates []model.Candidate, insu
 		return firstID(out[i].EvidenceIDs) < firstID(out[j].EvidenceIDs)
 	})
 
-	// Confidence labels, using the margin over the runner-up.
+	// Confidence labels.
+	//
+	// The margin only means something for the leader: it answers "is the winner
+	// clearly better than the runner-up?". Applying it to every row made the
+	// second candidate look more trustworthy than the first, because its gap to
+	// the third happened to be large — which is meaningless.
 	for i := range out {
-		margin := 0.0
-		if i+1 < len(out) {
-			margin = out[i].Score - out[i+1].Score
+		if i == 0 {
+			margin := 0.0
+			if len(out) > 1 {
+				margin = out[0].Score - out[1].Score
+			}
+			switch {
+			case out[0].Score >= c.HighScore && margin >= c.HighMargin:
+				out[0].Confidence = "high"
+			case out[0].Score >= c.Medium:
+				out[0].Confidence = "medium"
+			default:
+				out[0].Confidence = "low"
+			}
+			continue
 		}
+		// Runners-up are labelled by absolute score only, and can never claim
+		// high confidence: they are not the answer.
 		switch {
-		case out[i].Score >= c.HighScore && margin >= c.HighMargin:
-			out[i].Confidence = "high"
-		case out[i].Score >= c.Medium:
+		case out[i].Score >= c.HighScore:
 			out[i].Confidence = "medium"
-		case out[i].Score > 0:
+		case out[i].Score >= c.Medium:
 			out[i].Confidence = "low"
 		default:
 			out[i].Confidence = "low"

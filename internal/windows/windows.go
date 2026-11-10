@@ -170,11 +170,23 @@ func Detect(logs []model.LogLine, cfg Config) Result {
 		}
 	}
 
-	// No change point: everything is baseline, the incident is the tail.
+	// No change point: everything is baseline and the incident is the tail.
+	//
+	// The tail must have real width, not collapse to a point. A zero-width
+	// window makes every downstream comparison produce nothing and quietly
+	// reports "insufficient evidence" for a capture that simply had a steady
+	// error rate — which is a wrong diagnosis, not an honest one.
+	incidentStart := last.Add(-cfg.BaselineCap / 4)
+	if incidentStart.Before(first) {
+		incidentStart = first
+	}
+	if !incidentStart.Before(last) {
+		incidentStart = last.Add(-time.Second)
+	}
 	return Result{
 		BaselineStart: first,
-		BaselineEnd:   last,
-		IncidentStart: last,
+		BaselineEnd:   incidentStart,
+		IncidentStart: incidentStart,
 		IncidentEnd:   last,
 		Detected:      false,
 		Scanned:       len(bins),

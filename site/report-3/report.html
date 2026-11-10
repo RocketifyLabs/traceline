@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Incident report — seed 3</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#0f1117;color:#e6e9ef;
+  font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+main{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+header h1{font-size:26px;margin:0 0 8px;letter-spacing:-.02em}
+.src,.win{color:#8b93a7;font-size:13px;margin:2px 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em;
+  background:#181b24;padding:1px 5px;border-radius:4px}
+section{margin:34px 0}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#8b93a7;
+  margin:0 0 12px;font-weight:600}
+.verdict{background:#181b24;border:1px solid #252a36;border-left:3px solid #e5484d;
+  border-radius:6px;padding:18px 20px}
+.verdict.insufficient{border-left-color:#f5a623}
+.verdict h2{margin-bottom:10px}
+.cause{margin:0;font-size:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.score{margin:6px 0 0;color:#8b93a7;font-size:13px}
+.conf{font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:999px}
+.conf-high{background:#1c3a24;color:#3fb950}
+.conf-medium{background:#3a3018;color:#f5a623}
+.conf-low{background:#2a2d38;color:#8b93a7}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:#8b93a7;font-weight:600;font-size:11px;text-transform:uppercase;
+  letter-spacing:.06em;border-bottom:1px solid #252a36;padding:7px 10px 7px 0}
+td{padding:7px 10px 7px 0;border-bottom:1px solid #1c2029;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.reason{color:#8b93a7}
+.ids{color:#8b93a7;font-family:ui-monospace,monospace;font-size:11px;word-break:break-all;max-width:220px}
+.note,.empty{color:#8b93a7;font-size:12px;margin:10px 0 0}
+.chart{background:#181b24;border:1px solid #252a36;border-radius:6px;padding:10px;
+  margin-bottom:14px;overflow:hidden}
+.chart svg{display:block;width:100%;height:auto}
+footer{margin-top:50px;color:#5c6478;font-size:11px;border-top:1px solid #1c2029;padding-top:16px}
+</style></head><body>
+<main>
+<header><h1>Incident report — seed 3</h1>
+<p class="src">source: <code>simulated scenario seed=3 fault=pool_exhaustion</code></p>
+<p class="win">baseline 09:43:18.000 → 10:03:18.000 &nbsp;·&nbsp; incident 10:03:18.000 → 10:06:00.000</p>
+</header>
+<section class="verdict"><h2>Most likely root cause</h2><p class="cause"><code>edge</code><span class="conf conf-medium">medium confidence</span></p><p class="score">score 0.75</p></section>
+<section><h2>Ranked causes</h2>
+<table><thead><tr><th>#</th><th>service</th><th>score</th><th>confidence</th><th>onset</th><th>strength</th><th>explains</th><th>not explained</th><th>evidence</th></tr></thead><tbody>
+<tr><td>1</td><td><code>edge</code></td><td>0.75</td><td>medium</td><td>1.00</td><td>1.00</td><td>0.00</td><td>1.00</td><td class="ids">log-005685 log-005700 log-005706 log-005712 log-005717 log-005723 …</td></tr>
+</tbody></table>
+<p class="note">Every score is a weighted sum of the four factors shown, so a ranking can be audited rather than trusted. Evidence ids address the exact log lines and spans.</p>
+</section>
+<section><h2>Charts</h2>
+<div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 90" width="760" height="90" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><rect x="0" y="0" width="760" height="90" fill="#0f1117"/><text x="20" y="30" font-size="15" fill="#e6e9ef" text-anchor="start">candidate scores</text><text x="138" y="68" font-size="13" fill="#e6e9ef" text-anchor="end">edge</text><rect x="150" y="56" width="520" height="16" rx="3" fill="#252a36"/><rect x="150" y="56" width="520" height="16" rx="3" fill="#e5484d"/><text x="680" y="69" font-size="12" fill="#8b93a7" text-anchor="start">0.75</text></svg></div>
+<div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="760" height="320" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><rect x="0" y="0" width="760" height="320" fill="#0f1117"/><text x="20" y="26" font-size="15" fill="#e6e9ef" text-anchor="start">service dependency graph</text><line x1="406" y1="170" x2="644" y2="170" stroke="#e5484d" stroke-width="2"/><text x="525" y="166" font-size="9" fill="#e5484d" text-anchor="middle">19 err</text><line x1="116" y1="170" x2="354" y2="170" stroke="#e5484d" stroke-width="2"/><text x="235" y="166" font-size="9" fill="#e5484d" text-anchor="middle">22 err</text><circle cx="380" cy="170" r="26" fill="#3fb950"/><text x="380" y="212" font-size="11" fill="#e6e9ef" text-anchor="middle">auth</text><circle cx="90" cy="170" r="31" fill="#e5484d"/><circle cx="90" cy="170" r="26" fill="#3fb950"/><text x="90" y="212" font-size="11" fill="#e6e9ef" text-anchor="middle">edge</text><circle cx="670" cy="170" r="26" fill="#3fb950"/><text x="670" y="212" font-size="11" fill="#e6e9ef" text-anchor="middle">orders</text></svg></div>
+<div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><rect x="0" y="0" width="760" height="300" fill="#0f1117"/><text x="20" y="30" font-size="15" fill="#e6e9ef" text-anchor="start">anomaly strength over the incident window</text><line x1="60" y1="55" x2="60" y2="260" stroke="#252a36" stroke-width="1"/><line x1="60" y1="260" x2="740" y2="260" stroke="#252a36" stroke-width="1"/><line x1="60" y1="260" x2="740" y2="260" stroke="#252a36" stroke-width="1"/><text x="52" y="264" font-size="10" fill="#8b93a7" text-anchor="end">0</text><line x1="60" y1="208.75" x2="740" y2="208.75" stroke="#252a36" stroke-width="1"/><text x="52" y="212.75" font-size="10" fill="#8b93a7" text-anchor="end">43168000000</text><line x1="60" y1="157.5" x2="740" y2="157.5" stroke="#252a36" stroke-width="1"/><text x="52" y="161.5" font-size="10" fill="#8b93a7" text-anchor="end">86336000000</text><line x1="60" y1="106.25" x2="740" y2="106.25" stroke="#252a36" stroke-width="1"/><text x="52" y="110.25" font-size="10" fill="#8b93a7" text-anchor="end">129504000000</text><line x1="60" y1="55" x2="740" y2="55" stroke="#252a36" stroke-width="1"/><text x="52" y="59" font-size="10" fill="#8b93a7" text-anchor="end">172672000000</text><text x="60" y="282" font-size="10" fill="#8b93a7" text-anchor="middle">0s</text><text x="740" y="282" font-size="10" fill="#8b93a7" text-anchor="middle">2.5s</text><path d="M 105.33 260 L 105.33 260 L 150.67 55 L 196 260 L 740 260" fill="none" stroke="#4c8dff" stroke-width="2" stroke-linejoin="round"/><rect x="60" y="282" width="10" height="10" rx="2" fill="#4c8dff"/><text x="76" y="291" font-size="11" fill="#8b93a7" text-anchor="start">anomaly strength</text></svg></div>
+</section>
+<section><h2>Timeline</h2>
+<table><thead><tr><th>time</th><th>kind</th><th>service</th><th>detail</th></tr></thead><tbody>
+<tr><td>10:03:18.166</td><td>cascade</td><td><code>edge</code></td><td>first error</td></tr>
+<tr><td>10:03:18.166</td><td>first_anomaly</td><td><code>edge</code></td><td>error_rate</td></tr>
+<tr><td>10:03:18.333</td><td>first_anomaly</td><td><code>orders</code></td><td>template_burst</td></tr>
+<tr><td>10:03:18.499</td><td>first_anomaly</td><td><code>auth</code></td><td>template_burst</td></tr>
+<tr><td>10:03:57.333</td><td>cascade</td><td><code>orders</code></td><td>first error</td></tr>
+<tr><td>10:04:08.166</td><td>cascade</td><td><code>auth</code></td><td>first error</td></tr>
+</tbody></table>
+</section>
+<section><h2>Dependencies</h2>
+<table><thead><tr><th>caller</th><th></th><th>callee</th><th>calls</th><th>errors</th><th>err rate</th><th>p50</th><th>p95</th></tr></thead><tbody>
+<tr><td><code>auth</code></td><td>→</td><td><code>orders</code></td><td>2161</td><td>19</td><td>1%</td><td>40ms</td><td>50ms</td></tr>
+<tr><td><code>edge</code></td><td>→</td><td><code>auth</code></td><td>2161</td><td>22</td><td>1%</td><td>40ms</td><td>50ms</td></tr>
+</tbody></table>
+</section>
+<section><h2>Data quality</h2>
+<table><tbody>
+<tr><td>log lines read</td><td>0</td></tr>
+<tr><td>logs accepted</td><td>0</td></tr>
+<tr><td>span lines read</td><td>0</td></tr>
+<tr><td>spans accepted</td><td>0</td></tr>
+<tr><td>skipped</td><td>0</td></tr>
+</tbody></table></section>
+<footer>generated by itm 0.1.0</footer>
+</main>
+</body></html>

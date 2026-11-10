@@ -88,13 +88,13 @@ func Run(ctx context.Context, args []string, env Env) int {
 	command, rest := args[0], args[1:]
 	switch command {
 	case "analyze":
-		return runAnalyze(ctx, rest, env)
+		return runAnalyzeReal(ctx, rest, env)
 	case "simulate":
-		return runSimulate(ctx, rest, env)
+		return runSimulateReal(ctx, rest, env)
 	case "bench":
-		return runBench(ctx, rest, env)
+		return runBenchReal(ctx, rest, env)
 	case "demo":
-		return runDemo(ctx, rest, env)
+		return runDemoReal(ctx, rest, env)
 	default:
 		fmt.Fprintf(env.Stderr, "itm: unknown command %q\n\n", command)
 		fmt.Fprint(env.Stderr, usage)
@@ -144,74 +144,6 @@ func flagWasSet(fs *flag.FlagSet, name string) bool {
 		}
 	})
 	return set
-}
-
-func runAnalyze(ctx context.Context, args []string, env Env) int {
-	fs := newFlagSet("analyze", env)
-	logs := fs.String("logs", "", "JSONL log file (required)")
-	spans := fs.String("spans", "", "JSONL span file (required)")
-	out := fs.String("out", "", "output directory (required)")
-	incStart := fs.String("incident-start", "", "ISO 8601 window start (disables detection)")
-	incEnd := fs.String("incident-end", "", "ISO 8601 window end (disables detection)")
-	weights := fs.String("weights", "", "scoring config JSON (default: built-in)")
-	if code, ok := parse(fs, args, env, "analyze"); !ok {
-		return code
-	}
-	_ = ctx
-	_ = weights
-	if *logs == "" || *spans == "" || *out == "" {
-		fmt.Fprint(env.Stderr, "itm analyze: --logs, --spans and --out are required\n")
-		return ExitUsage
-	}
-	if *incStart != "" || *incEnd != "" {
-		fmt.Fprint(env.Stderr, "itm analyze: an explicit incident window is not implemented yet (T07)\n")
-		return ExitError
-	}
-	return notImplemented(env, "analyze", "T17")
-}
-
-func runSimulate(ctx context.Context, args []string, env Env) int {
-	fs := newFlagSet("simulate", env)
-	seed := fs.Int("seed", 0, "deterministic random seed (required)")
-	fault := fs.String("fault", "", "fault type (default: derived from the seed)")
-	out := fs.String("out", "", "output directory (required)")
-	if code, ok := parse(fs, args, env, "simulate"); !ok {
-		return code
-	}
-	_ = ctx
-	_ = fault
-	_ = *seed
-	if *out == "" || !flagWasSet(fs, "seed") {
-		fmt.Fprint(env.Stderr, "itm simulate: --seed and --out are required\n")
-		return ExitUsage
-	}
-	return notImplemented(env, "simulate", "T17")
-}
-
-func runBench(ctx context.Context, args []string, env Env) int {
-	fs := newFlagSet("bench", env)
-	seeds := fs.String("seeds", "1001-1020", "seed range, e.g. 1001-1020")
-	out := fs.String("out", "BENCHMARK.md", "output markdown file")
-	if code, ok := parse(fs, args, env, "bench"); !ok {
-		return code
-	}
-	_ = ctx
-	_ = *seeds
-	_ = *out
-	return notImplemented(env, "bench", "T17")
-}
-
-func runDemo(ctx context.Context, args []string, env Env) int {
-	fs := newFlagSet("demo", env)
-	out := fs.String("out", "out/demo", "output directory")
-	seed := fs.Int("seed", 7, "scenario seed")
-	if code, ok := parse(fs, args, env, "demo"); !ok {
-		return code
-	}
-	_ = ctx
-	_ = *out
-	_ = *seed
-	return notImplemented(env, "demo", "T17")
 }
 
 // Main is the entry point used by cmd/itm.

@@ -1,0 +1,253 @@
+{
+  "version": "0.1.0",
+  "source": "simulated scenario seed=7 fault=partition",
+  "baseline_start": "2026-10-16T09:43:18Z",
+  "baseline_end": "2026-10-16T10:03:18Z",
+  "incident_start": "2026-10-16T10:03:18Z",
+  "incident_end": "2026-10-16T10:06:00Z",
+  "insufficient_evidence": false,
+  "candidates": [
+    {
+      "service": "orders",
+      "score": 0.9996,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.999,
+        "strength": 1,
+        "explains_downstream": 1,
+        "not_explained": 1
+      },
+      "evidence_ids": [
+        "log-020534",
+        "log-020542",
+        "log-020555",
+        "log-020562",
+        "log-020580",
+        "log-020600",
+        "log-020613",
+        "log-020621",
+        "log-020632",
+        "log-020649",
+        "log-020655",
+        "log-020666",
+        "log-020681",
+        "log-020691",
+        "log-020702",
+        "log-020708",
+        "log-020724",
+        "log-020736",
+        "log-020743",
+        "log-020758"
+      ]
+    },
+    {
+      "service": "auth",
+      "score": 0.8957,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.9877,
+        "strength": 1,
+        "explains_downstream": 1,
+        "not_explained": 0
+      },
+      "evidence_ids": [
+        "log-020553",
+        "log-020734",
+        "log-020807",
+        "log-020825",
+        "log-020895",
+        "log-020934",
+        "log-021086",
+        "log-021141",
+        "log-021194",
+        "log-021214",
+        "log-021309",
+        "log-021363",
+        "log-021400",
+        "log-021418",
+        "log-021437",
+        "log-021496",
+        "log-021553",
+        "log-021613",
+        "log-021670",
+        "log-021691"
+      ]
+    },
+    {
+      "service": "edge",
+      "score": 0.6428,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.9794,
+        "strength": 1,
+        "explains_downstream": 0,
+        "not_explained": 0
+      },
+      "evidence_ids": [
+        "log-020805",
+        "log-020874",
+        "log-020893",
+        "log-020914",
+        "log-020975",
+        "log-021172",
+        "log-021231",
+        "log-021250",
+        "log-021307",
+        "log-021457",
+        "log-021476",
+        "log-021551",
+        "log-021592",
+        "log-021611",
+        "log-021689",
+        "log-021709",
+        "log-021730",
+        "log-021750",
+        "log-021769",
+        "log-021809"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "cascade",
+      "service": "orders",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "dbproxy",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "orders",
+      "detail": "error_rate"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "payments",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "auth",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:19Z",
+      "kind": "cascade",
+      "service": "auth",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:20Z",
+      "kind": "first_anomaly",
+      "service": "edge",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:21Z",
+      "kind": "cascade",
+      "service": "edge",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:21Z",
+      "kind": "cascade",
+      "service": "dbproxy",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:28Z",
+      "kind": "cascade",
+      "service": "payments",
+      "detail": "first error"
+    }
+  ],
+  "edges": [
+    {
+      "caller": "auth",
+      "callee": "dbproxy",
+      "calls": 2161,
+      "errors": 19,
+      "error_rate": 0.0088,
+      "p50_ms": 39.996,
+      "p95_ms": 50.914
+    },
+    {
+      "caller": "auth",
+      "callee": "orders",
+      "calls": 2161,
+      "errors": 683,
+      "error_rate": 0.3161,
+      "p50_ms": 49.533,
+      "p95_ms": 123.686
+    },
+    {
+      "caller": "edge",
+      "callee": "auth",
+      "calls": 2161,
+      "errors": 145,
+      "error_rate": 0.0671,
+      "p50_ms": 46.363,
+      "p95_ms": 70.954
+    },
+    {
+      "caller": "edge",
+      "callee": "orders",
+      "calls": 2161,
+      "errors": 691,
+      "error_rate": 0.3198,
+      "p50_ms": 50.048,
+      "p95_ms": 123.478
+    },
+    {
+      "caller": "edge",
+      "callee": "payments",
+      "calls": 2161,
+      "errors": 17,
+      "error_rate": 0.0079,
+      "p50_ms": 39.825,
+      "p95_ms": 50.969
+    },
+    {
+      "caller": "orders",
+      "callee": "dbproxy",
+      "calls": 4322,
+      "errors": 40,
+      "error_rate": 0.0093,
+      "p50_ms": 40.203,
+      "p95_ms": 50.825
+    },
+    {
+      "caller": "orders",
+      "callee": "payments",
+      "calls": 4322,
+      "errors": 41,
+      "error_rate": 0.0095,
+      "p50_ms": 39.938,
+      "p95_ms": 50.667
+    },
+    {
+      "caller": "payments",
+      "callee": "dbproxy",
+      "calls": 6483,
+      "errors": 64,
+      "error_rate": 0.0099,
+      "p50_ms": 39.9,
+      "p95_ms": 50.816
+    }
+  ],
+  "data_quality": {
+    "log_lines_read": 0,
+    "logs_accepted": 0,
+    "span_lines_read": 0,
+    "spans_accepted": 0,
+    "skipped": 0
+  }
+}

@@ -3,6 +3,8 @@ package cli
 import (
 	"bytes"
 	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -75,29 +77,6 @@ func TestUnknownCommandExits2(t *testing.T) {
 	}
 }
 
-// Stubs must fail loudly: a stub returning 0 is indistinguishable from a
-// working feature in a smoke test.
-func TestUnimplementedCommandsExit1(t *testing.T) {
-	cases := [][]string{
-		{"analyze", "--logs", "l.jsonl", "--spans", "s.jsonl", "--out", "out"},
-		{"simulate", "--seed", "1", "--out", "out"},
-		{"bench"},
-		{"demo"},
-	}
-	for _, args := range cases {
-		code, _, stderr := run(t, args...)
-		if code != ExitError {
-			t.Errorf("%v: exit = %d, want %d", args, code, ExitError)
-		}
-		if !strings.Contains(stderr, "not implemented yet") {
-			t.Errorf("%v: stderr = %q, want 'not implemented yet'", args, stderr)
-		}
-		if !strings.Contains(stderr, "T1") && !strings.Contains(stderr, "T0") {
-			t.Errorf("%v: stderr should name the task that implements it: %q", args, stderr)
-		}
-	}
-}
-
 func TestAnalyzeMissingRequiredFlagsExits2(t *testing.T) {
 	code, _, stderr := run(t, "analyze", "--logs", "l.jsonl")
 	if code != ExitUsage {
@@ -108,13 +87,40 @@ func TestAnalyzeMissingRequiredFlagsExits2(t *testing.T) {
 	}
 }
 
-func TestSimulateRequiresSeedEvenWhenZero(t *testing.T) {
-	// --seed 0 must be accepted: zero is a legitimate seed.
-	code, _, _ := run(t, "simulate", "--seed", "0", "--out", "out")
+func TestAnalyzeMissingFileExits1(t *testing.T) {
+	dir := t.TempDir()
+	code, _, stderr := run(t, "analyze",
+		"--logs", filepath.Join(dir, "nope.jsonl"),
+		"--spans", filepath.Join(dir, "nope.jsonl"),
+		"--out", dir)
 	if code != ExitError {
-		t.Fatalf("--seed 0: exit = %d, want %d (accepted, then stub)", code, ExitError)
+		t.Fatalf("exit = %d, want %d (unreadable input is a failure)", code, ExitError)
 	}
-	// Omitting --seed entirely is a usage error.
+	if !strings.Contains(stderr, "itm analyze:") {
+		t.Errorf("stderr = %q, want a prefixed error", stderr)
+	}
+}
+
+func TestAnalyzeEmptyInputExits1(t *testing.T) {
+	dir := t.TempDir()
+	logs := filepath.Join(dir, "logs.jsonl")
+	spans := filepath.Join(dir, "spans.jsonl")
+	if err := os.WriteFile(logs, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(spans, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, _, stderr := run(t, "analyze", "--logs", logs, "--spans", spans, "--out", dir)
+	if code != ExitError {
+		t.Fatalf("exit = %d, want %d for empty input", code, ExitError)
+	}
+	if !strings.Contains(stderr, "no usable records") {
+		t.Errorf("stderr = %q", stderr)
+	}
+}
+
+func TestSimulateRequiresSeedAndOut(t *testing.T) {
 	code, _, stderr := run(t, "simulate", "--out", "out")
 	if code != ExitUsage {
 		t.Fatalf("missing --seed: exit = %d, want %d", code, ExitUsage)
@@ -124,21 +130,158 @@ func TestSimulateRequiresSeedEvenWhenZero(t *testing.T) {
 	}
 }
 
+func TestSimulateWritesScenarioFiles(t *testing.T) {
+	dir := t.TempDir()
+	code, stdout, stderr := run(t, "simulate", "--seed", "5", "--out", dir)
+	if code != ExitOK {
+		t.Fatalf("exit = %d, stderr = %q", code, stderr)
+	}
+	for _, name := range []string{"logs.jsonl", "spans.jsonl", "scenario.yaml"} {
+		info, err := os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			t.Errorf("%s not written: %v", name, err)
+			continue
+		}
+		if info.Size() == 0 {
+			t.Errorf("%s is empty", name)
+		}
+	}
+	if !strings.Contains(stdout, "true_cause=") {
+		t.Errorf("stdout should report the ground truth: %q", stdout)
+	}
+}
+
+// --seed 0 is a legitimate seed and must be accepted.
+func TestSimulateAcceptsSeedZero(t *testing.T) {
+	dir := t.TempDir()
+	code, _, stderr := run(t, "simulate", "--seed", "0", "--out", dir)
+	if code != ExitOK {
+		t.Fatalf("--seed 0 rejected: exit = %d, stderr = %q", code, stderr)
+	}
+}
+
+func TestSimulateIsDeterministic(t *testing.T) {
+	d1, d2 := t.TempDir(), t.TempDir()
+	if code, _, _ := run(t, "simulate", "--seed", "42", "--out", d1); code != ExitOK {
+		t.Fatal("first run failed")
+	}
+	if code, _, _ := run(t, "simulate", "--seed", "42", "--out", d2); code != ExitOK {
+		t.Fatal("second run failed")
+	}
+	a, err := os.ReadFile(filepath.Join(d1, "logs.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(d2, "logs.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(a, b) {
+		t.Fatal("same seed produced different logs.jsonl")
+	}
+}
+
+func TestBenchWritesMarkdown(t *testing.T) {
+	dir := t.TempDir()
+	out := filepath.Join(dir, "BENCHMARK.md")
+	code, stdout, stderr := run(t, "bench", "--seeds", "1-2", "--out", out)
+	if code != ExitOK {
+		t.Fatalf("exit = %d, stderr = %q", code, stderr)
+	}
+	if !strings.Contains(stdout, "top-1") {
+		t.Errorf("stdout should report the metrics: %q", stdout)
+	}
+	blob, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("BENCHMARK.md not written: %v", err)
+	}
+	if !strings.Contains(string(blob), "Top-1 accuracy") {
+		t.Error("BENCHMARK.md missing the summary")
+	}
+}
+
+func TestBenchRejectsBadSeedRange(t *testing.T) {
+	code, _, stderr := run(t, "bench", "--seeds", "20-1")
+	if code != ExitUsage {
+		t.Fatalf("exit = %d, want %d", code, ExitUsage)
+	}
+	if !strings.Contains(stderr, "inverted") {
+		t.Errorf("stderr = %q", stderr)
+	}
+}
+
+func TestDemoWritesEveryArtifact(t *testing.T) {
+	dir := t.TempDir()
+	code, stdout, stderr := run(t, "demo", "--out", dir, "--seed", "7")
+	if code != ExitOK {
+		t.Fatalf("exit = %d, stderr = %q", code, stderr)
+	}
+	for _, name := range []string{"report.html", "report.pdf", "summary.md", "result.json"} {
+		if _, err := os.Stat(filepath.Join(dir, name)); err != nil {
+			t.Errorf("%s not written: %v", name, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "charts", "dependencies.svg")); err != nil {
+		t.Errorf("charts/dependencies.svg not written: %v", err)
+	}
+	if !strings.Contains(stdout, "true cause:") {
+		t.Errorf("demo should state the ground truth for comparison: %q", stdout)
+	}
+	if !strings.Contains(stdout, "HIT") && !strings.Contains(stdout, "MISS") {
+		t.Errorf("demo should say whether the ranking matched: %q", stdout)
+	}
+}
+
+func TestDemoIsDeterministic(t *testing.T) {
+	d1, d2 := t.TempDir(), t.TempDir()
+	if code, _, _ := run(t, "demo", "--out", d1, "--seed", "3"); code != ExitOK {
+		t.Fatal("first demo failed")
+	}
+	if code, _, _ := run(t, "demo", "--out", d2, "--seed", "3"); code != ExitOK {
+		t.Fatal("second demo failed")
+	}
+	for _, name := range []string{"report.html", "summary.md", "result.json", "report.pdf"} {
+		a, err := os.ReadFile(filepath.Join(d1, name))
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		b, err := os.ReadFile(filepath.Join(d2, name))
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if !bytes.Equal(a, b) {
+			t.Errorf("%s differs between two runs of the same seed", name)
+		}
+	}
+}
+
+// End to end: simulate to disk, then analyze those files back.
+func TestAnalyzeRoundTripsSimulatedFiles(t *testing.T) {
+	src := t.TempDir()
+	if code, _, stderr := run(t, "simulate", "--seed", "12", "--out", src); code != ExitOK {
+		t.Fatalf("simulate failed: %s", stderr)
+	}
+	out := t.TempDir()
+	code, stdout, stderr := run(t, "analyze",
+		"--logs", filepath.Join(src, "logs.jsonl"),
+		"--spans", filepath.Join(src, "spans.jsonl"),
+		"--out", out)
+	if code != ExitOK {
+		t.Fatalf("analyze exit = %d, stderr = %q", code, stderr)
+	}
+	if !strings.Contains(stdout, "root cause:") && !strings.Contains(stdout, "insufficient evidence") {
+		t.Errorf("analyze printed neither a cause nor insufficient evidence: %q", stdout)
+	}
+	for _, name := range []string{"report.html", "result.json"} {
+		if _, err := os.Stat(filepath.Join(out, name)); err != nil {
+			t.Errorf("%s not written: %v", name, err)
+		}
+	}
+}
+
 func TestUnknownFlagExits2(t *testing.T) {
 	code, _, _ := run(t, "demo", "--nope")
 	if code != ExitUsage {
 		t.Fatalf("exit = %d, want %d", code, ExitUsage)
-	}
-}
-
-func TestBenchDefaultsAreDocumented(t *testing.T) {
-	// bench has no required flags; with defaults it should reach the stub, not
-	// a usage error.
-	code, _, stderr := run(t, "bench")
-	if code != ExitError {
-		t.Fatalf("exit = %d, want %d", code, ExitError)
-	}
-	if !strings.Contains(stderr, "not implemented yet") {
-		t.Fatalf("stderr = %q", stderr)
 	}
 }

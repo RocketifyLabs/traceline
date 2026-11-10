@@ -1,0 +1,223 @@
+{
+  "version": "0.1.0",
+  "source": "simulated scenario seed=12 fault=pool_exhaustion",
+  "baseline_start": "2026-10-16T09:43:18Z",
+  "baseline_end": "2026-10-16T10:03:18Z",
+  "incident_start": "2026-10-16T10:03:18Z",
+  "incident_end": "2026-10-16T10:06:00Z",
+  "insufficient_evidence": false,
+  "candidates": [
+    {
+      "service": "orders",
+      "score": 0.9996,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.999,
+        "strength": 1,
+        "explains_downstream": 1,
+        "not_explained": 1
+      },
+      "evidence_ids": [
+        "log-013178",
+        "log-013183",
+        "log-013193",
+        "log-013206",
+        "log-013216",
+        "log-013228",
+        "log-013241",
+        "log-013245",
+        "log-013259",
+        "log-013267",
+        "log-013271",
+        "log-013278",
+        "log-013283",
+        "log-013291",
+        "log-013295",
+        "log-013302",
+        "log-013306",
+        "log-013316",
+        "log-013320",
+        "log-013330"
+      ]
+    },
+    {
+      "service": "auth",
+      "score": 0.8989,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.9969,
+        "strength": 1,
+        "explains_downstream": 1,
+        "not_explained": 0
+      },
+      "evidence_ids": [
+        "log-013200",
+        "log-013214",
+        "log-013226",
+        "log-013239",
+        "log-013252",
+        "log-013314",
+        "log-013328",
+        "log-013341",
+        "log-013368",
+        "log-013381",
+        "log-013406",
+        "log-013421",
+        "log-013434",
+        "log-013447",
+        "log-013498",
+        "log-013510",
+        "log-013560",
+        "log-013594",
+        "log-013640",
+        "log-013691"
+      ]
+    },
+    {
+      "service": "edge",
+      "score": 0.6489,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.9969,
+        "strength": 1,
+        "explains_downstream": 0,
+        "not_explained": 0
+      },
+      "evidence_ids": [
+        "log-013175",
+        "log-013212",
+        "log-013264",
+        "log-013288",
+        "log-013312",
+        "log-013326",
+        "log-013339",
+        "log-013353",
+        "log-013366",
+        "log-013404",
+        "log-013419",
+        "log-013445",
+        "log-013459",
+        "log-013485",
+        "log-013533",
+        "log-013547",
+        "log-013569",
+        "log-013628",
+        "log-013651",
+        "log-013677"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "cascade",
+      "service": "orders",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "edge",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "orders",
+      "detail": "error_rate"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "payments",
+      "detail": "template_burst"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "cascade",
+      "service": "auth",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:18Z",
+      "kind": "first_anomaly",
+      "service": "auth",
+      "detail": "error_rate"
+    },
+    {
+      "at": "2026-10-16T10:03:19Z",
+      "kind": "cascade",
+      "service": "edge",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:03:20Z",
+      "kind": "cascade",
+      "service": "payments",
+      "detail": "first error"
+    }
+  ],
+  "edges": [
+    {
+      "caller": "auth",
+      "callee": "orders",
+      "calls": 2161,
+      "errors": 690,
+      "error_rate": 0.3193,
+      "p50_ms": 49.739,
+      "p95_ms": 147.249
+    },
+    {
+      "caller": "auth",
+      "callee": "payments",
+      "calls": 2161,
+      "errors": 28,
+      "error_rate": 0.013,
+      "p50_ms": 39.798,
+      "p95_ms": 50.63
+    },
+    {
+      "caller": "edge",
+      "callee": "auth",
+      "calls": 2161,
+      "errors": 264,
+      "error_rate": 0.1222,
+      "p50_ms": 48.321,
+      "p95_ms": 79.335
+    },
+    {
+      "caller": "edge",
+      "callee": "orders",
+      "calls": 2161,
+      "errors": 685,
+      "error_rate": 0.317,
+      "p50_ms": 49.944,
+      "p95_ms": 146.368
+    },
+    {
+      "caller": "edge",
+      "callee": "payments",
+      "calls": 2161,
+      "errors": 21,
+      "error_rate": 0.0097,
+      "p50_ms": 39.784,
+      "p95_ms": 50.814
+    },
+    {
+      "caller": "orders",
+      "callee": "payments",
+      "calls": 4322,
+      "errors": 47,
+      "error_rate": 0.0109,
+      "p50_ms": 39.846,
+      "p95_ms": 50.679
+    }
+  ],
+  "data_quality": {
+    "log_lines_read": 0,
+    "logs_accepted": 0,
+    "span_lines_read": 0,
+    "spans_accepted": 0,
+    "skipped": 0
+  }
+}

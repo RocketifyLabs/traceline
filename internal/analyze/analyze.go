@@ -73,7 +73,12 @@ func Run(in Input, opts Options) model.Report {
 	// 3. Graph over the whole capture: a dependency that only appears in the
 	//    baseline is still a dependency, and dropping it would hide the path from
 	//    symptom to cause.
-	rep.Edges = graph.Build(in.Spans).Edges
+	//
+	//    Built once and reused for the ranking. Building it a second time was
+	//    both wasteful and superlinear in wall-clock terms: every span was walked
+	//    and every edge recomputed for the same answer.
+	g := graph.Build(in.Spans)
+	rep.Edges = g.Edges
 
 	// 4. Anomalies between the windows.
 	rep.Anomalies = anomaly.Detect(anomaly.Input{
@@ -90,7 +95,7 @@ func Run(in Input, opts Options) model.Report {
 	// 6. Ranking, including the insufficient-evidence path.
 	candidates, insufficient := rca.Rank(rca.Input{
 		Anomalies:     rep.Anomalies,
-		Graph:         graph.Build(in.Spans),
+		Graph:         g,
 		IncidentStart: win.IncidentStart,
 		IncidentEnd:   win.IncidentEnd,
 		TopK:          opts.TopK,
