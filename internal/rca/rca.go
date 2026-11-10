@@ -17,6 +17,27 @@ import (
 	"github.com/andrelbuzzo/itm/internal/model"
 )
 
+// isMeaningful reports whether an anomaly is evidence that a service is actually
+// in trouble.
+//
+// Only behavioural anomalies qualify. A log-template burst with no change in
+// error rate or latency is a logging change — and in this simulator it is
+// guaranteed noise, because every healthy service bursts its templates at the
+// fault boundary. Letting a burst create a candidate is what made a healthy
+// service win: it had a perfect onset, no anomalous dependency, and nothing to
+// explain, which is the highest possible score.
+//
+// Template bursts therefore corroborate a service that is already a candidate;
+// they never create one.
+func isMeaningful(a model.Anomaly) bool {
+	switch a.Kind {
+	case "error_rate", "latency_p95", "new_error_template":
+		return true
+	default:
+		return false
+	}
+}
+
 // Weights are the factor weights. They sum to 1 so a perfect candidate scores
 // exactly 1.0.
 type Weights struct {
@@ -73,10 +94,13 @@ func Rank(in Input, w Weights, c Confidence) (candidates []model.Candidate, insu
 	}
 
 	// Earliest onset per service, and the strongest anomaly per service.
+	// Only anomalies that mean "this service is in trouble" participate; a noisy
+	// log template must not make a healthy service look broken or, worse, make a
+	// broken service look explained by its dependency.
 	onset := map[string]time.Time{}
 	strength := map[string]float64{}
 	for _, a := range in.Anomalies {
-		if a.Onset.IsZero() {
+		if a.Onset.IsZero() || !isMeaningful(a) {
 			continue
 		}
 		cur, ok := onset[a.Service]
@@ -103,8 +127,13 @@ func Rank(in Input, w Weights, c Confidence) (candidates []model.Candidate, insu
 	}
 
 	// Downstream relation: for each anomalous service, which other anomalous
-	// services does it reach through the dependency graph?
-	downstream := downstreamMap(in.Graph, services)
+	// services DEPEND ON it (its transitive callers).
+	//
+	// Direction matters and is easy to get backwards. A root cause at the bottom
+	// of a call chain has no anomalous callee; what it explains is the failure of
+	// the services that call it. Counting callees would score the root cause zero
+	// for explaining anything, and hand the win to its loudest victim.
+	dependents := dependentMap(in.Graph, services)
 
 	out := make([]model.Candidate, 0, len(services))
 	for _, svc := range services {
@@ -121,8 +150,8 @@ func Rank(in Input, w Weights, c Confidence) (candidates []model.Candidate, insu
 		// strong signal so one absurd outlier cannot dominate the ranking.
 		b.Strength = clamp01(strength[svc] / 10)
 
-		// Factor 3: how many downstream anomalies this candidate precedes.
-		deps := downstream[svc]
+		// Factor 3: how many of this service's anomalous dependents it precedes.
+		deps := dependents[svc]
 		if len(deps) > 0 {
 			explained := 0
 			for _, d := range deps {
@@ -194,9 +223,13 @@ func Rank(in Input, w Weights, c Confidence) (candidates []model.Candidate, insu
 	return out, false
 }
 
-// downstreamMap returns, for each service, the anomalous services reachable from
-// it through the dependency graph (transitively).
-func downstreamMap(g graph.Result, candidates []string) map[string][]string {
+// dependentMap returns, for each service, the anomalous services that depend on
+// it — that is, its transitive CALLERS.
+//
+// Reaching a caller means walking the graph backwards: from a service to the
+// services whose edges point at it. This is the direction that makes a deep root
+// cause explain its visible symptoms.
+func dependentMap(g graph.Result, candidates []string) map[string][]string {
 	anomalous := make(map[string]bool, len(candidates))
 	for _, s := range candidates {
 		anomalous[s] = true
@@ -210,15 +243,15 @@ func downstreamMap(g graph.Result, candidates []string) map[string][]string {
 		for len(queue) > 0 {
 			cur := queue[0]
 			queue = queue[1:]
-			for _, next := range g.Callees(cur) {
-				if visited[next] {
+			for _, prev := range g.Callers(cur) {
+				if visited[prev] {
 					continue
 				}
-				visited[next] = true
-				if anomalous[next] {
-					reachable = append(reachable, next)
+				visited[prev] = true
+				if anomalous[prev] {
+					reachable = append(reachable, prev)
 				}
-				queue = append(queue, next)
+				queue = append(queue, prev)
 			}
 		}
 		sort.Strings(reachable)
