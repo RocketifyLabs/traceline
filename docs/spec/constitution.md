@@ -6,27 +6,39 @@ change that violates one is rejected regardless of how useful it looks.
 ## 1. Deterministic
 
 Same input, same bytes. Sorted iteration everywhere, stable tie-breaks (by service name,
-then by id), fixed seeds, no wall clock, no locale, no unordered set iteration reaching
-output. A test that runs twice and compares hashes is the enforcement mechanism, not a
-convention.
+then by id), fixed seeds, no wall clock, no locale. A test that runs twice and compares hashes
+is the enforcement mechanism, not a convention.
+
+**Go-specific rule.** Map iteration order is randomized by design — ranging over a map can
+emit a different order on every execution, and no amount of code review catches it. Every map
+that can reach an output MUST be iterated through `determinism.SortedKeys`. Ranging over the
+map directly is a bug even when the current output happens to look sorted. The hazard is
+proven, not assumed: `TestMapRangeOrderIsNotStable` demonstrates unstable raw iteration and
+stable sorted iteration in the same test.
 
 **Why:** a tool that ranks root causes differently on every run cannot be trusted,
 benchmarked, or golden-tested.
 
 ## 2. Offline, always
 
-No network at runtime and no network in tests. The test suite blocks socket creation
-globally; a passing run is the proof. No telemetry, no phone-home, no remote schema fetch.
+No network at runtime and no network in tests.
 
-**Why:** reviewers rebuild on a clean machine with `--network none`. Anything that needs
-the network to pass tests is unbuildable for them.
+In Go this is stronger than a runtime guard, because it is enforced at build time: `go.mod`
+carries no `require` block, and `internal/offline` fails the suite if a non-stdlib package
+appears in the module graph. The build itself is the proof —
+`GOPROXY=off CGO_ENABLED=0 go build ./...` — and `make test-offline` runs it.
 
-## 3. Standard library only at runtime
+**Why:** reviewers rebuild on a clean machine with `--network none`. Anything that needs the
+network to build or pass tests is unbuildable for them.
 
-`pyproject.toml` keeps `dependencies = []`. `pytest` and `ruff` are dev-only. A runtime
-dependency has to replace something the standard library cannot do — none has qualified.
+## 3. Standard library only
 
-**Why:** a tiny image, trivial offline rebuild, nothing to break, no supply-chain surface.
+`go.mod` has no dependencies. A test asserts that. A dependency has to replace something the
+standard library cannot do — none has qualified, including graphics (SVG and PDF are text
+formats) and statistics (median/MAD/percentiles are a few dozen lines).
+
+**Why:** an 8 MB static image, trivial offline rebuild, nothing to break, no supply-chain
+surface.
 
 ## 4. Tests first, one task at a time
 

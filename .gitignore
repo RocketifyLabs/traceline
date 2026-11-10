@@ -2,21 +2,16 @@
 product.md
 *.planning.md
 
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-.pytest_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+# Go build output
+/bin/
+/out/
+*.exe
+*.test
+*.out
 
-# build/runtime output
-out/
-dist/
-build/
+# coverage
+coverage.txt
+coverage.html
 
 # OS / editors
 .DS_Store

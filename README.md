@@ -15,57 +15,66 @@ always produces byte-identical output.
 
 ## Status
 
-This repository is being built task by task against `docs/spec/tasks.md`. The CLI is wired
-but every subcommand currently exits non-zero with `not implemented yet` — a stub is never
-mistaken for a result. Progress lives in `docs/spec/tasks.md`.
+Built task by task against `docs/spec/tasks.md`. The CLI is wired but every subcommand
+currently exits non-zero with `not implemented yet` — a stub is never mistaken for a result.
+Progress lives in `docs/spec/tasks.md`; the reasoning behind the stack is in
+`docs/DECISIONS.md`.
 
 ## Requirements
 
-- Python 3.12 (pinned in `.python-version`)
-- [`uv`](https://docs.astral.sh/uv/) `0.13.7` for the development environment
-- Docker, only for the judge-style rebuild check
+- **Go 1.27** — that is the whole toolchain. No package manager, no virtualenv.
+- Docker, only for the judge-style rebuild check.
 
-The runtime is **standard library only**. `pytest` and `ruff` are development-only
-dependencies; nothing else is installed at runtime.
+There are **no third-party dependencies**: `go.mod` has no `require` block, and a test fails
+if one ever appears.
 
-## Setup
-
-```bash
-uv sync --locked    # creates .venv from uv.lock, exact versions
-```
-
-## Run
+## Build and run
 
 ```bash
-uv run itm --help
-uv run itm demo                     # simulate an incident, analyze it, write out/demo/
-uv run itm analyze --logs logs.jsonl --spans spans.jsonl --out out/report
-uv run itm simulate --seed 7 --out out/scenario
-uv run itm bench --seeds 1001-1020 --out BENCHMARK.md
+make build          # static binary at bin/itm
+./bin/itm --help
 ```
 
-`make` targets mirror the same commands: `make test`, `make lint`, `make demo`, `make bench`.
+```bash
+go run ./cmd/itm demo                      # simulate an incident, analyze it, write out/demo/
+go run ./cmd/itm analyze --logs logs.jsonl --spans spans.jsonl --out out/report
+go run ./cmd/itm simulate --seed 7 --out out/scenario
+go run ./cmd/itm bench --seeds 1001-1020 --out BENCHMARK.md
+```
 
 ## Test
 
 ```bash
-make test        # fast, offline, excludes the perf budget
-make test-perf   # perf budget only (machine-dependent, slow)
-make lint
+make test           # full suite, offline
+make lint           # go vet + gofmt check
+make test-perf      # perf/benchmark measures (slow, machine-dependent)
 ```
 
-The whole suite runs with **network access blocked**, so a passing run is proof the tool
-works offline. Same check, the way a reviewer does it:
+Both proofs that matter, run the way a reviewer runs them:
 
 ```bash
-make verify       # docker build -t itm . && docker run --rm --network none itm make test
+make test-offline   # GOPROXY=off CGO_ENABLED=0 — no module fetch, no C toolchain
+make verify         # docker build + docker run --network none make test
 ```
 
-## Scoring configuration
+`make test-offline` is the strong form of the offline claim: if any code path needed the
+network, the build would fail before a single test ran.
 
-Ranking weights and detection thresholds live in `itm/rca_weights.json` and can be
-overridden per run with `itm analyze --weights <path>`. Defaults are documented in
-`docs/spec/plan.md`; the anomaly threshold is a robust z-score of 3.5.
+## Output
+
+One run produces, in the output directory:
+
+| File | What it is |
+|---|---|
+| `report.html` | Self-contained report — inline CSS, JS and SVG. Zero external requests, opens from `file://`. |
+| `report.pdf` | The same report as a printable vector PDF (A4 landscape). |
+| `charts/*.svg` | Each chart also standalone: `error-rate.svg`, `timeline.svg`, `dependencies.svg`. |
+| `summary.md` | Short Markdown summary for a postmortem. |
+| `result.json` | Machine-readable ranked causes with evidence ids. |
+
+PNG is deliberately not produced: raster text needs a font renderer, and vector output is
+crisper, diffable and golden-testable. Export from the browser if you need a raster.
+See `docs/DECISIONS.md` D-002.
 
 ## Input format
 

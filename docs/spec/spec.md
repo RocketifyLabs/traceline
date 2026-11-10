@@ -118,10 +118,26 @@ One self-contained HTML file (inline CSS/JS/SVG, zero external requests, opens f
 `file://`), plus a Markdown summary and a JSON result. Sections: summary, timeline,
 dependency graph (SVG), ranked causes with evidence, data-quality notes.
 
+Three graphical outputs, all stdlib-only and deterministic:
+
+1. **`report.html`** — the primary artifact. Charts are inline SVG, so it opens from
+   `file://` with no network and no assets.
+2. **`report.pdf`** — a vector, printable version of the same report (A4 landscape). Written
+   directly as PDF operators; no third-party library. Must be a structurally valid PDF whose
+   text is extractable, verified by a test.
+3. **`charts/*.svg`** — each chart also written standalone (`error-rate.svg`,
+   `timeline.svg`, `dependencies.svg`) so it can be dropped into a postmortem or a slide.
+
+**PNG raster output is explicitly out of scope.** Rendering legible raster text requires
+either a font renderer or a hand-rolled bitmap font, and both were measured as strictly worse
+than SVG: SVG has real text, scales, is diffable, and golden-testable. A chart that needs to
+be a raster can be exported from the browser.
+
 **Acceptance:** golden-file test on normalized HTML; a test asserts no `http(s)://`
-resource references. Normalization replaces, before comparison: every absolute path, the
-`itm` version string, any timestamp rendered as "generated at", and whitespace-only runs.
-Nothing else is normalized — if the analysis changes, the golden test must catch it.
+resource references; a test parses `report.pdf` and confirms page count and extractable text;
+each standalone SVG parses as XML. Normalization replaces, before comparison: every absolute
+path, the `itm` version string, any timestamp rendered as "generated at", and whitespace-only
+runs. Nothing else is normalized — if the analysis changes, the golden test must catch it.
 
 ### FR-9 Simulator
 Seeded generator of a service topology plus traffic, logs and spans, with fault injection.
@@ -144,11 +160,13 @@ it in as zero would flatter the number.
 codes, no absolute paths in output.
 
 Exit codes: **0** success · **1** analysis failed or refused (unreadable input, no data,
-internal error) · **2** usage error (bad or missing arguments, via argparse). Nothing else is
-returned, so a script can branch on the code without parsing text.
+internal error) · **2** usage error (bad or missing arguments). Nothing else is returned, so a
+script can branch on the code without parsing text.
 
-**Acceptance:** CLI smoke tests run through a subprocess: each command's `--help` exits 0, a
-missing required argument exits 2, and a genuine failure exits 1.
+**Acceptance:** CLI tests drive the command layer directly (no subprocess needed, which keeps
+them fast and offline): each command's `--help` exits 0, a missing required argument exits 2,
+and a genuine failure exits 1. One additional test builds the real binary and runs
+`itm --version` through it.
 
 ### FR-12 Demo and live site
 `itm demo` simulates an incident, analyzes it, and writes the report to `./out/demo/`. A

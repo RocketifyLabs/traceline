@@ -10,15 +10,23 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
 
 ## Phase 0 — Foundations
 
-- [x] **T01 Scaffold.** git repo, MIT `LICENSE`, `.gitignore`, `.python-version` (3.12),
-  `pyproject.toml` (stdlib runtime, dev group), `Makefile`, `.env.example`.
-  **Accept:** `uv sync` succeeds; `uv run itm --version` works.
-- [x] **T02 Docker + offline proof.** `Dockerfile` installing dev deps at build time; the
-  suite blocks sockets globally.
-  **Accept:** `make test` passes locally; `make verify` documented for the reviewer.
-- [x] **T03 Spec docs.** `constitution.md`, `spec.md`, `plan.md`, `tasks.md`.
+- [x] **T01 Scaffold.** git repo, MIT `LICENSE`, `.gitignore`, `go.mod` (no `require` block),
+  `Makefile`, `.env.example`, `cmd/itm` entry point.
+  **Accept:** `make build` produces a static binary; `itm --version` works.
+- [x] **T02 Offline proof.** `internal/offline` asserts the module graph has no external
+  dependency and that `GOPROXY=off CGO_ENABLED=0 go build ./...` succeeds; a `test` stage in
+  the `Dockerfile` keeps `make test` runnable with the network off.
+  **Accept:** `make test` passes locally; `docker run --rm --network none itm-test make test`
+  passes; shipped image is a distroless static binary.
+- [x] **T03 Spec docs.** `constitution.md`, `spec.md`, `plan.md`, `tasks.md`, `DECISIONS.md`.
   **Accept:** every FR/NFR in `spec.md` has an acceptance criterion and at least one task
   below.
+- [x] **T04a Stats + determinism core.** `internal/stats` (median, MAD, robust z, nearest-rank
+  percentile) and `internal/determinism` (`SortedKeys` + the test that proves map order is a
+  real hazard).
+  **Accept:** MAD is legitimately zero on some series and `RobustZ` still returns a finite
+  value; a flat series stays below the anomaly threshold; every map-to-output path goes
+  through `SortedKeys`.
 
 ## Phase 1 — Read the data
 

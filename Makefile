@@ -1,39 +1,50 @@
-.PHONY: help test test-perf lint fmt demo bench site clean verify
+.PHONY: help test test-offline test-perf lint fmt vet build demo bench site clean verify tidy
 
-PY ?= python
+GO ?= go
+BIN ?= bin/itm
 
 help:           ## show this help
-	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
+	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-test:           ## run the offline test suite (fast; excludes perf)
-	$(PY) -m pytest -m "not perf"
+test:           ## run the full offline test suite (fast; excludes perf)
+	$(GO) test -count=1 ./...
 
-test-perf:      ## run the perf budget test (slow, machine-dependent)
-	$(PY) -m pytest -m perf
+test-offline:   ## prove the module builds with no module proxy and no C toolchain
+	GOPROXY=off CGO_ENABLED=0 $(GO) build ./...
+	$(GO) test -count=1 ./internal/offline/
 
-lint:           ## static checks
-	$(PY) -m ruff check itm tests
-	$(PY) -m ruff format --check itm tests
+test-perf:      ## run the perf/benchmark measures (slow, machine-dependent)
+	$(GO) test -run XXX -bench . -benchmem ./...
+
+lint:           ## static checks (vet + gofmt, no external linters needed)
+	$(GO) vet ./...
+	@test -z "$$($(GO) fmt -l .)" || { echo "unformatted files:"; $(GO) fmt -l .; exit 1; }
 
 fmt:            ## auto-format
-	$(PY) -m ruff format itm tests
+	$(GO) fmt ./...
+
+build:          ## build the static binary to bin/itm
+	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "-s -w" -o $(BIN) ./cmd/itm
 
 demo:           ## simulate an incident, analyze it, write the report to out/demo
-	$(PY) -m itm.cli demo --out out/demo
+	$(GO) run ./cmd/itm demo --out out/demo
 
 bench:          ## run the held-out benchmark, rewrite BENCHMARK.md
-	$(PY) -m itm.cli bench --seeds 1001-1020 --out BENCHMARK.md
+	$(GO) run ./cmd/itm bench --seeds 1001-1020 --out BENCHMARK.md
 
-site:           ## regenerate the static site (3 pre-generated reports + benchmark table)
-	$(PY) -m itm.cli demo --out site/report-1 --seed 11
-	$(PY) -m itm.cli demo --out site/report-2 --seed 23
-	$(PY) -m itm.cli demo --out site/report-3 --seed 37
-	$(PY) -c "import shutil; shutil.copy('BENCHMARK.md', 'site/BENCHMARK.md')"
+site:           ## regenerate the static site (reports + benchmark table)
+	$(GO) run ./cmd/itm demo --out site/report-1 --seed 11
+	$(GO) run ./cmd/itm demo --out site/report-2 --seed 23
+	$(GO) run ./cmd/itm demo --out site/report-3 --seed 37
+	cp BENCHMARK.md site/BENCHMARK.md
 
 verify:         ## judge-style check: clean build, tests with no network
 	docker build -t itm .
-	docker run --rm --network none itm make test
+	docker build -t itm-test --target test .
+	docker run --rm --network none itm-test make test
+	@echo "--- image size ---"
+	docker images itm --format "{{.Repository}}:{{.Tag}} {{.Size}}"
 
 clean:
-	rm -rf out .pytest_cache .ruff_cache
-	find . -name '__pycache__' -type d -prune -exec rm -rf {} +
+	rm -rf bin out
+	$(GO) clean -testcache

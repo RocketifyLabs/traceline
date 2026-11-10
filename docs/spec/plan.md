@@ -2,35 +2,47 @@
 
 ## Stack
 
-- **Python 3.12**, pinned in `.python-version`.
-- **Standard library only at runtime.** `pyproject.toml` keeps `dependencies = []`.
-- **uv** for the dev environment: `uv sync` from `uv.lock`; `pytest` and `ruff` are
-  dev-group only.
-- **Docker** `python:3.12-slim`, dev deps installed at build time so tests run with
-  `--network none`.
+- **Go 1.27**, standard library only. `go.mod` carries no `require` block, and a test fails if
+  one ever appears.
+- **`go test`** for tests and benchmarks (built in — nothing to install).
+- **`go vet` + `go fmt`** for static checks (built in).
+- **Docker**: a `golang:1.27-alpine` build stage producing a static binary, shipped in
+  `distroless/static`. A separate `test` stage keeps `make test` runnable with the network off.
 
-Rationale: the smallest possible image, a trivial offline rebuild, and no dependency that
-can break between the author's machine and a reviewer's clean Linux box.
+Rationale, and the measurements behind it: `docs/DECISIONS.md` D-001. Short version — the
+shipped image is 10 MB with no interpreter, no package manager and no lockfile resolution, and
+the offline rebuild is `GOPROXY=off go build`. That is the "small image, trivial offline
+rebuild, nothing to break" property, achieved without a virtualenv.
 
-## Module layout
+**Determinism caveat, specific to Go.** Map iteration order is randomized by design, which
+threatens the byte-identical-output requirement. The policy is enforced by
+`internal/determinism.SortedKeys` plus a test (`TestMapRangeOrderIsNotStable`) that
+demonstrates the hazard is real and that sorting removes it.
 
-Pure functions and dataclasses. No global mutable state, no module-level caches, nothing
+## Package layout
+
+Pure functions and plain structs. No global mutable state, no package-level caches, nothing
 that makes a second run differ from the first.
 
-| Module | Responsibility |
+| Package | Responsibility |
 |---|---|
-| `itm/model.py` | Dataclasses: `LogLine`, `Span`, `Edge`, `Anomaly`, `TimelineEvent`, `Candidate`, `Report`. Frozen where cheap. |
-| `itm/ingest.py` | Tolerant JSONL readers. Skips and counts malformed lines, assigns stable line ids. |
-| `itm/templates.py` | Deterministic log templating: mask numbers, UUIDs, hex, IPs, durations, quoted strings. |
-| `itm/graph.py` | Caller→callee edges from spans; call count, error rate, p50/p95. |
-| `itm/windows.py` | Baseline vs incident window selection; error-rate change-point detection. |
-| `itm/anomaly.py` | Four detectors over median/MAD baselines, each returning onset, strength, evidence ids. |
-| `itm/timeline.py` | Chronological events: first anomaly per service, deploy/config changes, cascade order. |
-| `itm/rca.py` | Candidate scoring with a per-factor breakdown, confidence labels, insufficient-evidence path. |
-| `itm/report.py` | Self-contained HTML (inline CSS/JS/SVG), Markdown summary, JSON result. |
-| `itm/sim.py` | Seeded topology, traffic, logs and spans generator plus fault injectors. |
-| `itm/bench.py` | Runs scenarios over a seed range; top-1, top-3, mean TTD, per-fault table. |
-| `itm/cli.py` | `analyze` / `simulate` / `bench` / `demo`, exit codes, no absolute paths. |
+| `itm` (root) | Version and package documentation. |
+| `internal/model` | Structs: `LogLine`, `Span`, `Edge`, `Anomaly`, `TimelineEvent`, `Candidate`, `Report`. |
+| `internal/ingest` | Tolerant JSONL readers. Skips and counts malformed lines, assigns stable ids. |
+| `internal/templates` | Deterministic log templating: mask numbers, UUIDs, hex, IPs, durations. |
+| `internal/graph` | Caller→callee edges from spans; call count, error rate, p50/p95. |
+| `internal/windows` | Baseline vs incident window selection; error-rate change-point detection. |
+| `internal/anomaly` | Four detectors over median/MAD baselines, returning onset, strength, evidence ids. |
+| `internal/stats` | Median, MAD, robust z-score, nearest-rank percentile. **Done (T04a).** |
+| `internal/timeline` | Chronological events: first anomaly per service, deploy/config changes, cascade order. |
+| `internal/rca` | Candidate scoring with per-factor breakdown, confidence labels, insufficient-evidence path. |
+| `internal/report` | HTML (inline CSS/JS/SVG), PDF (vector), standalone SVGs, Markdown, JSON. |
+| `internal/sim` | Seeded topology, traffic, log and span generator plus fault injectors. |
+| `internal/bench` | Runs scenarios over a seed range; top-1, top-3, mean TTD, per-fault table. |
+| `internal/cli` | `analyze` / `simulate` / `bench` / `demo`, exit codes, no absolute paths. |
+| `internal/determinism` | `SortedKeys` and the guard that proves map order is a real hazard. |
+| `internal/offline` | Asserts no external dependency and that an offline build succeeds. |
+| `cmd/itm` | Thin `main`, calls `internal/cli`. |
 
 ## Data flow
 

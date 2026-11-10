@@ -1,42 +1,49 @@
 # syntax=docker/dockerfile:1
 
 # ITM rebuilds from this file on a clean Linux machine with no network at run
-# time. The exact same command the reviewer runs:
+# time. The exact commands a reviewer runs:
 #   docker build -t itm .
 #   docker run --rm --network none itm make test
-FROM python:3.12-slim
+#
+# Go produces a self-contained static binary, so the shipped image carries no
+# interpreter, no package manager and no toolchain: only the binary.
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    UV_LINK_MODE=copy \
-    UV_PYTHON_DOWNLOADS=never \
-    PATH="/app/.venv/bin:$PATH"
+# ---------- build stage ----------
+FROM golang:1.27-alpine AS build
 
-WORKDIR /app
+WORKDIR /src
 
-# `make` is the single documented test entry point, so the image must ship it.
-RUN apt-get update \
- && apt-get install -y --no-install-recommends make \
- && rm -rf /var/lib/apt/lists/*
+# No external dependencies: go.mod has no require block. If that ever changes,
+# copying go.sum and running `go mod download` here would be the place.
+COPY go.mod ./
+COPY . .
 
-# uv is a BUILD-time tool only: it materialises .venv straight from uv.lock, so the
-# image gets exactly the versions the author tested. Installing "pytest>=8" with pip
-# would let a rebuild quietly pick a newer release than the lockfile records.
-RUN python -m pip install --no-cache-dir "uv==0.13.7"
+ENV CGO_ENABLED=0 \
+    GOOS=linux
 
-# Copy everything the build needs before syncing: the project itself is part of the
-# lock, and `uv sync --locked` fails if pyproject and uv.lock disagree.
-COPY pyproject.toml uv.lock ./
-COPY README.md LICENSE ./
-COPY itm/ ./itm/
-COPY tests/ ./tests/
-COPY fixtures/ ./fixtures/
-COPY docs/ ./docs/
-COPY Makefile ./
+RUN go build -trimpath -ldflags "-s -w" -o /out/itm ./cmd/itm
 
-RUN uv sync --locked --no-progress \
- && python -c "import itm, pytest, sys; print('itm', itm.__version__, '| pytest', pytest.__version__, '| Python', sys.version.split()[0])"
+# ---------- test stage ----------
+# Kept separate so `make test` can run with the network switched off even though
+# the final image has no compiler.
+FROM golang:1.27-alpine AS test
+
+WORKDIR /src
+COPY go.mod ./
+COPY . .
+
+ENV CGO_ENABLED=0 \
+    GOFLAGS=-mod=mod \
+    GOPROXY=off
+
+RUN apk add --no-cache make
 
 CMD ["make", "test"]
+
+# ---------- runtime stage ----------
+FROM gcr.io/distroless/static-debian12:nonroot
+
+COPY --from=build /out/itm /itm
+
+USER nonroot:nonroot
+ENTRYPOINT ["/itm"]
