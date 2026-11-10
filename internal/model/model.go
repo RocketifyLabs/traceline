@@ -36,13 +36,13 @@ type LogLine struct {
 	// ID is derived from the record's content, never from its position in the
 	// file. Shuffling the input preserves it, which is what makes shuffled
 	// input produce byte-identical output.
-	ID       string
-	TS       time.Time
-	Service  string
-	Level    Level
-	Msg      string
-	TraceID  string       // optional
-	Fields   map[string]any // optional; "event" carries deploy/config_change
+	ID      string
+	TS      time.Time
+	Service string
+	Level   Level
+	Msg     string
+	TraceID string         // optional
+	Fields  map[string]any // optional; "event" carries deploy/config_change
 }
 
 // Field returns a field as a string, or "" when absent or not a scalar.
@@ -105,12 +105,12 @@ func (s Span) Attr(key string) string {
 
 // Edge is a caller→callee dependency derived from parent/child spans.
 type Edge struct {
-	Caller    string
-	Callee    string
-	Calls     int
-	Errors    int
-	P50       time.Duration
-	P95       time.Duration
+	Caller string
+	Callee string
+	Calls  int
+	Errors int
+	P50    time.Duration
+	P95    time.Duration
 }
 
 // ErrorRate is errors over calls, in [0, 1]. An edge with no calls is 0.
@@ -134,10 +134,10 @@ type Anomaly struct {
 
 // TimelineEvent is one row of the reconstructed timeline.
 type TimelineEvent struct {
-	At        time.Time
-	Kind      string // first_anomaly, deploy, config_change, cascade, skipped_data
-	Service   string
-	Detail    string
+	At          time.Time
+	Kind        string // first_anomaly, deploy, config_change, cascade, skipped_data
+	Service     string
+	Detail      string
 	EvidenceIDs []string
 }
 
