@@ -126,19 +126,25 @@ func Detect(logs []model.LogLine, cfg Config) Result {
 		}
 	}
 
-	// Baseline reference: all bins are candidates for the baseline, and the
-	// median/MAD of their rates describes "normal" for this file.
-	rates := make([]float64, len(bins))
-	for i, b := range bins {
-		if b.total > 0 {
-			rates[i] = float64(b.errs) / float64(b.total)
-		}
-	}
-	med := medianOf(rates)
-	mad := madOf(rates, med)
+	// Baseline reference: the median and MAD of the HEALTHY bins.
+	//
+	// Computing it over every bin is wrong whenever a large share of the capture
+	// is incident. With half the bins elevated the median lands halfway up, the
+	// MAD becomes the size of the shift itself, and the threshold ends up above
+	// the maximum observed rate — no bin can ever be flagged. In a short capture
+	// (a few minutes) that is the common case, not the edge case.
+	//
+	// The fix is to build the reference from the lower half of the rates. If up
+	// to half the capture is anomalous, those bins are baseline by construction;
+	// if the capture is mostly healthy, the lower half is a conservative estimate
+	// that only makes the detector slightly more sensitive.
+	rates := ratesOf(bins)
+	reference := lowerHalf(rates)
+	med := medianOf(reference)
+	mad := madOf(reference, med)
 	if mad <= 0 {
-		// A perfectly flat baseline still needs a floor, or the first bin with a
-		// single error counts as a 5-sigma event.
+		// A perfectly flat healthy baseline still needs a floor, or the first bin
+		// with a single error counts as a 5-sigma event.
 		mad = 0.01
 	}
 	threshold := med + cfg.MADK*mad
@@ -176,12 +182,36 @@ func Detect(logs []model.LogLine, cfg Config) Result {
 	// window makes every downstream comparison produce nothing and quietly
 	// reports "insufficient evidence" for a capture that simply had a steady
 	// error rate — which is a wrong diagnosis, not an honest one.
-	incidentStart := last.Add(-cfg.BaselineCap / 4)
-	if incidentStart.Before(first) {
-		incidentStart = first
+	//
+	// The tail is a quarter of the observed range, not BaselineCap/4: a capture
+	// shorter than the cap would otherwise have its tail start before the first
+	// record, which silently produced a zero-width baseline.
+	total := last.Sub(first)
+	if total <= 0 {
+		// A single instant of data: give both windows a nominal width so the
+		// caller never divides by zero.
+		return Result{
+			BaselineStart: first,
+			BaselineEnd:   first,
+			IncidentStart: first,
+			IncidentEnd:   first,
+			Detected:      false,
+			Scanned:       len(bins),
+		}
 	}
-	if !incidentStart.Before(last) {
-		incidentStart = last.Add(-time.Second)
+	tail := total / 4
+	if tail > cfg.BaselineCap/4 {
+		tail = cfg.BaselineCap / 4
+	}
+	if tail < time.Second {
+		tail = time.Second
+	}
+	if tail >= total {
+		tail = total / 2
+	}
+	incidentStart := last.Add(-tail)
+	if !incidentStart.After(first) {
+		incidentStart = first.Add(total / 2)
 	}
 	return Result{
 		BaselineStart: first,
@@ -191,6 +221,35 @@ func Detect(logs []model.LogLine, cfg Config) Result {
 		Detected:      false,
 		Scanned:       len(bins),
 	}
+}
+
+// ratesOf returns each bin's error rate.
+func ratesOf(bins []bin) []float64 {
+	rates := make([]float64, len(bins))
+	for i, b := range bins {
+		if b.total > 0 {
+			rates[i] = float64(b.errs) / float64(b.total)
+		}
+	}
+	return rates
+}
+
+// lowerHalf returns the lower half of the rates, which is the baseline candidate
+// set.
+//
+// At least one element is always returned, so a single-bin capture still has a
+// reference.
+func lowerHalf(rates []float64) []float64 {
+	if len(rates) == 0 {
+		return []float64{0}
+	}
+	c := append([]float64(nil), rates...)
+	sort.Float64s(c)
+	n := len(c) / 2
+	if n < 1 {
+		n = 1
+	}
+	return c[:n]
 }
 
 // makeBins buckets logs by BinSize starting at first.

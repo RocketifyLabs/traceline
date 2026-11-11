@@ -1,0 +1,90 @@
+{"ts":"2026-10-16T10:00:00Z","service":"web","level":"info","msg":"request handled","trace_id":"t1"}
+{"ts":"2026-10-16T10:00:00Z","service":"api","level":"info","msg":"request handled","trace_id":"t1"}
+{"ts":"2026-10-16T10:00:00Z","service":"db-proxy","level":"info","msg":"query ok","trace_id":"t1"}
+{"ts":"2026-10-16T10:00:06Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:06Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:06Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:12Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:12Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:12Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:18Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:18Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:18Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:24Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:24Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:24Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:30Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:30Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:30Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:36Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:36Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:36Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:42Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:42Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:42Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:48Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:48Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:48Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:00:54Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:54Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:00:54Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:01:00Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:00Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:00Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:03Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:03Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:03Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:06Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:06Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:06Z","service":"web","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:09Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:01:09Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:09Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:12Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:12Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:12Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:15Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:15Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:15Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:18Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:18Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:18Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:21Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:01:21Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:21Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:24Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:24Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:24Z","service":"web","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:27Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:27Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:27Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:30Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:30Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:30Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:33Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:01:33Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:33Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:36Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:36Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:36Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:39Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:39Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:39Z","service":"web","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:42Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:42Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:42Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:45Z","service":"db-proxy","level":"info","msg":"query ok"}
+{"ts":"2026-10-16T10:01:45Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:45Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:48Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:48Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:48Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:51Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:51Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:51Z","service":"web","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:54Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:54Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T10:01:54Z","service":"web","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:57Z","service":"db-proxy","level":"error","msg":"connection pool exhausted"}
+{"ts":"2026-10-16T10:01:57Z","service":"api","level":"error","msg":"upstream timeout after 3000ms"}
+{"ts":"2026-10-16T10:01:57Z","service":"web","level":"info","msg":"request handled"}

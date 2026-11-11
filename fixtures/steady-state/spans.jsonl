@@ -1,0 +1,12 @@
+{"trace_id":"a1","span_id":"a1r","parent_span_id":"","service":"api","name":"GET /health","start":"2026-10-16T09:00:00Z","end":"2026-10-16T09:00:00.040Z","status":"ok"}
+{"trace_id":"a2","span_id":"a2r","parent_span_id":"","service":"api","name":"GET /health","start":"2026-10-16T09:00:30Z","end":"2026-10-16T09:00:30.040Z","status":"ok"}
+{"trace_id":"a3","span_id":"a3r","parent_span_id":"","service":"api","name":"GET /health","start":"2026-10-16T09:01:00Z","end":"2026-10-16T09:01:00.040Z","status":"ok"}
+{"trace_id":"a4","span_id":"a4r","parent_span_id":"","service":"api","name":"GET /health","start":"2026-10-16T09:01:30Z","end":"2026-10-16T09:01:30.040Z","status":"ok"}
+{"trace_id":"a5","span_id":"a5r","parent_span_id":"","service":"api","name":"GET /health","start":"2026-10-16T09:02:00Z","end":"2026-10-16T09:02:00.040Z","status":"ok"}
+{"trace_id":"a6","span_id":"a6r","parent_span_id":"","service":"api","name":"GET /health","start":"2026-10-16T09:02:30Z","end":"2026-10-16T09:02:30.040Z","status":"ok"}
+{"trace_id":"b1","span_id":"b1r","parent_span_id":"","service":"db","name":"SELECT 1","start":"2026-10-16T09:00:05Z","end":"2026-10-16T09:00:05.010Z","status":"ok"}
+{"trace_id":"b2","span_id":"b2r","parent_span_id":"","service":"db","name":"SELECT 1","start":"2026-10-16T09:00:35Z","end":"2026-10-16T09:00:35.010Z","status":"ok"}
+{"trace_id":"b3","span_id":"b3r","parent_span_id":"","service":"db","name":"SELECT 1","start":"2026-10-16T09:01:05Z","end":"2026-10-16T09:01:05.010Z","status":"ok"}
+{"trace_id":"b4","span_id":"b4r","parent_span_id":"","service":"db","name":"SELECT 1","start":"2026-10-16T09:01:35Z","end":"2026-10-16T09:01:35.010Z","status":"ok"}
+{"trace_id":"b5","span_id":"b5r","parent_span_id":"","service":"db","name":"SELECT 1","start":"2026-10-16T09:02:05Z","end":"2026-10-16T09:02:05.010Z","status":"ok"}
+{"trace_id":"b6","span_id":"b6r","parent_span_id":"","service":"db","name":"SELECT 1","start":"2026-10-16T09:02:35Z","end":"2026-10-16T09:02:35.010Z","status":"ok"}

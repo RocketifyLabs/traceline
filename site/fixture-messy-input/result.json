@@ -1,0 +1,72 @@
+{
+  "version": "0.1.0",
+  "source": "logs.jsonl + spans.jsonl",
+  "baseline_start": "2026-10-16T11:00:00Z",
+  "baseline_end": "2026-10-16T11:01:00Z",
+  "incident_start": "2026-10-16T11:01:00Z",
+  "incident_end": "2026-10-16T11:02:06Z",
+  "insufficient_evidence": false,
+  "candidates": [
+    {
+      "service": "api",
+      "score": 0.75,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 1,
+        "strength": 1,
+        "explains_downstream": 0,
+        "not_explained": 1
+      },
+      "evidence_ids": [
+        "017b4500d9c7e6bb",
+        "07c75a5260d8e0db",
+        "1227cf59e94d1434",
+        "15725bf7f7450ee9",
+        "18c5645aeda93dd9",
+        "19a230293f6b47e9",
+        "1a8292503f6be4fb",
+        "264f14fd44e702d2",
+        "339153b5cbbad12b",
+        "3a417b13b5c0edac",
+        "4111841c3d8d069c",
+        "46c052745e34c33d",
+        "4cf8a2f6d4ba8961",
+        "5a1a7a3162836753",
+        "5b9ee10e5eacaff4",
+        "6eb19400acf9d8dc",
+        "6fc611aa8f4fdd74",
+        "71f11aa825242089",
+        "72da5f5e5fc4df7e",
+        "7787330edbc6164b"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "at": "2026-10-16T11:01:00Z",
+      "kind": "cascade",
+      "service": "api",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T11:01:00Z",
+      "kind": "first_anomaly",
+      "service": "api",
+      "detail": "error_rate"
+    }
+  ],
+  "edges": [],
+  "data_quality": {
+    "log_lines_read": 37,
+    "logs_accepted": 33,
+    "span_lines_read": 9,
+    "spans_accepted": 9,
+    "skipped": 4,
+    "skip_reasons": {
+      "empty_line": 1,
+      "invalid_json": 1,
+      "missing_required_field": 1,
+      "unparseable_timestamp": 1
+    }
+  }
+}

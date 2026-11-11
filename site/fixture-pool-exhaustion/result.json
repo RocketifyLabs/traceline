@@ -1,0 +1,175 @@
+{
+  "version": "0.1.0",
+  "source": "logs.jsonl + spans.jsonl",
+  "baseline_start": "2026-10-16T10:00:00Z",
+  "baseline_end": "2026-10-16T10:01:00Z",
+  "incident_start": "2026-10-16T10:01:00Z",
+  "incident_end": "2026-10-16T10:01:57Z",
+  "insufficient_evidence": false,
+  "candidates": [
+    {
+      "service": "db-proxy",
+      "score": 1,
+      "confidence": "high",
+      "breakdown": {
+        "onset": 1,
+        "strength": 1,
+        "explains_downstream": 1,
+        "not_explained": 1
+      },
+      "evidence_ids": [
+        "02c4e9bbd8c1dd99",
+        "0ff8b84d99715b37",
+        "1c758ff69de5783f",
+        "2dbf5f41c9cac05a",
+        "357771bedc096c6b",
+        "37af14cbe4237d2e",
+        "37af6e54860b140a",
+        "3bd30eedec355935",
+        "43705976ddb49e39",
+        "4882e30458c0ac54",
+        "5034adbf760c7421",
+        "5584c348a120c1de",
+        "6a5890f4489dce24",
+        "76bb1cc2eefb4779",
+        "88bcdb28686756d1",
+        "8b41efb23c081be1",
+        "8fe59468586b26c0",
+        "91c06e785d8aeaa9",
+        "a06b0cb297415d6a",
+        "adb1d9c3402307a2"
+      ]
+    },
+    {
+      "service": "web",
+      "score": 0.75,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 1,
+        "strength": 1,
+        "explains_downstream": 0,
+        "not_explained": 1
+      },
+      "evidence_ids": [
+        "05f4b25e176eed0b",
+        "149037dfdf835e76",
+        "15ee9f19a50bb103",
+        "2245d41119ed8e58",
+        "25da04e575d74463",
+        "35b162fe45ff7431",
+        "392a3d4d2bca806b",
+        "39b28e154b3f6e94",
+        "477d943491bb4962",
+        "4a708dd065648efd",
+        "5608d9abc8ea9008",
+        "5f939e9e28dae26f",
+        "6f93382ff09c42af",
+        "836a1e38eb8861b6",
+        "8dccbbe070436ce2",
+        "90876b4725bb5d28",
+        "9403d997803d5f43",
+        "9c266d65b2a44764",
+        "a4c881fdcc3444e5",
+        "ab26da5d93337c3c"
+      ]
+    },
+    {
+      "service": "api",
+      "score": 0.6499,
+      "confidence": "medium",
+      "breakdown": {
+        "onset": 0.9998,
+        "strength": 1,
+        "explains_downstream": 0,
+        "not_explained": 0
+      },
+      "evidence_ids": [
+        "06895fe21a296393",
+        "0f32b586e41fb38f",
+        "138d7a38e5c08aa1",
+        "1c8e35c56c676c7f",
+        "2b8e12a676f25965",
+        "3ed774af36a0e569",
+        "48ab13b8fb9fcede",
+        "4e80bc48b003475f",
+        "4ffbb42a965934f4",
+        "5ae6d4d5b218a97f",
+        "5b34463bbc29710f",
+        "630ebc486efc7fb4",
+        "69064f89a0c2b998",
+        "85c409887c0b2487",
+        "9059adb06ff91b38",
+        "96b8b085f5bba42e",
+        "9e4d123e48b5a158",
+        "9e4ebe58f5af2cb7",
+        "b0b6c8df9caa4bac",
+        "b1b9bf9c5f49b1f3"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "at": "2026-10-16T10:01:00Z",
+      "kind": "cascade",
+      "service": "db-proxy",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:01:00Z",
+      "kind": "first_anomaly",
+      "service": "db-proxy",
+      "detail": "error_rate"
+    },
+    {
+      "at": "2026-10-16T10:01:00Z",
+      "kind": "first_anomaly",
+      "service": "web",
+      "detail": "latency_p95"
+    },
+    {
+      "at": "2026-10-16T10:01:00Z",
+      "kind": "first_anomaly",
+      "service": "api",
+      "detail": "latency_p95"
+    },
+    {
+      "at": "2026-10-16T10:01:03Z",
+      "kind": "cascade",
+      "service": "api",
+      "detail": "first error"
+    },
+    {
+      "at": "2026-10-16T10:01:06Z",
+      "kind": "cascade",
+      "service": "web",
+      "detail": "first error"
+    }
+  ],
+  "edges": [
+    {
+      "caller": "api",
+      "callee": "db-proxy",
+      "calls": 10,
+      "errors": 5,
+      "error_rate": 0.5,
+      "p50_ms": 80,
+      "p95_ms": 2980
+    },
+    {
+      "caller": "web",
+      "callee": "api",
+      "calls": 10,
+      "errors": 6,
+      "error_rate": 0.6,
+      "p50_ms": 3290,
+      "p95_ms": 3290
+    }
+  ],
+  "data_quality": {
+    "log_lines_read": 90,
+    "logs_accepted": 90,
+    "span_lines_read": 30,
+    "spans_accepted": 30,
+    "skipped": 0
+  }
+}

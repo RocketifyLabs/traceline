@@ -1,0 +1,37 @@
+{"ts":"2026-10-16T11:00:00Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:00Z","service":"api","level":"info","msg":"request handled","fields":{"event":"deploy","version":"v2.1.0"}}
+{"ts":"2026-10-16T11:00:06Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:12Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:18Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:24Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:30Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:36Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:42Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:48Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:00:54Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:01:00Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:03Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:06Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:09Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:01:12Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:15Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:18Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:21Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:01:24Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:27Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:30Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:33Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:01:36Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:39Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:42Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:45Z","service":"api","level":"info","msg":"request handled"}
+this line is not JSON at all
+{"ts":"2026-10-16T11:01:48Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:01:51Z","service":"api","level":"error"}
+{"ts":"not-a-timestamp","service":"api","level":"error","msg":"bad clock"}
+{"ts":"2026-10-16T11:01:54Z","service":"api","level":"error","msg":"connection refused"}
+
+{"ts":"2026-10-16T11:01:57Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:02:00Z","service":"api","level":"info","msg":"request handled"}
+{"ts":"2026-10-16T11:02:03Z","service":"api","level":"error","msg":"connection refused"}
+{"ts":"2026-10-16T11:02:06Z","service":"api","level":"error","msg":"connection refused"}

@@ -41,6 +41,21 @@ enough sample to mean something.
 how well the method recovers a cause from *this* generator's behaviour; they are not a claim
 about real production systems.
 
+## Fixtures
+
+Three small captures are committed in [`fixtures/`](fixtures/README.md), each readable in a
+minute and each proving one behaviour:
+
+| Fixture | Proves |
+|---|---|
+| [`pool-exhaustion/`](fixtures/pool-exhaustion/) | names `db-proxy` (high confidence) ahead of the two services it broke |
+| [`steady-state/`](fixtures/steady-state/) | returns **insufficient evidence** rather than inventing a cause |
+| [`messy-input/`](fixtures/messy-input/) | four bad lines, four distinct rejection reasons, cause still found |
+
+```bash
+go run ./cmd/itm analyze   --logs fixtures/pool-exhaustion/logs.jsonl   --spans fixtures/pool-exhaustion/spans.jsonl   --out out/pool
+```
+
 ## Try it
 
 ```bash

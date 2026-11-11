@@ -22,6 +22,13 @@ import (
 
 // reportSeeds are the seeds whose demos become the gallery. Fixed on purpose: the
 // site must not change because someone re-ran a command.
+// fixtureGallery is the hand-checked captures, in the order they are shown.
+var fixtureGallery = []struct{ Name, Title string }{
+	{"pool-exhaustion", "Connection-pool exhaustion — db-proxy breaks, api and web follow"},
+	{"steady-state", "Healthy capture — the tool must say insufficient evidence"},
+	{"messy-input", "Dirty capture — four bad lines, each rejected for a different reason"},
+}
+
 var reportSeeds = []struct {
 	Seed  int
 	Title string
@@ -45,6 +52,19 @@ func main() {
 		}
 		run("go", "run", "./cmd/itm", "demo",
 			"--seed", fmt.Sprint(r.Seed), "--out", dir)
+	}
+
+	// The hand-checked fixtures, so a visitor can see a report generated from a
+	// capture they can read in a minute.
+	for _, fx := range fixtureGallery {
+		dir := filepath.Join(siteDir, "fixture-"+fx.Name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			fail(err)
+		}
+		run("go", "run", "./cmd/itm", "analyze",
+			"--logs", filepath.Join("fixtures", fx.Name, "logs.jsonl"),
+			"--spans", filepath.Join("fixtures", fx.Name, "spans.jsonl"),
+			"--out", dir)
 	}
 
 	// Benchmark table, if it exists.
@@ -79,7 +99,18 @@ func buildIndex(benchMD string) string {
 	b.WriteString("simulated incident, so the true cause is known and the ranking can be checked against it. ")
 	b.WriteString("This page and the reports it links are fully static: no server, no network.</p>\n")
 
-	b.WriteString("<h2>Example reports</h2>\n<ul class=\"gallery\">\n")
+	b.WriteString("<h2>Hand-checked fixtures</h2>\n")
+	b.WriteString("<p class=\"note\">Small captures committed in <code>fixtures/</code> that you can read in a minute. ")
+	b.WriteString("Each one proves a different behaviour, and the expected result is documented next to it.</p>\n")
+	b.WriteString("<ul class=\"gallery\">\n")
+	for _, fx := range fixtureGallery {
+		fmt.Fprintf(&b, "<li><a href=\"fixture-%s/report.html\">%s</a>", fx.Name, htmlEscape(fx.Title))
+		fmt.Fprintf(&b, "<span class=\"meta\"><a href=\"fixture-%s/summary.md\">markdown</a> · ", fx.Name)
+		fmt.Fprintf(&b, "<a href=\"fixture-%s/result.json\">json</a></span></li>\n", fx.Name)
+	}
+	b.WriteString("</ul>\n")
+
+	b.WriteString("<h2>Simulated reports</h2>\n<ul class=\"gallery\">\n")
 	sorted := append([]struct {
 		Seed  int
 		Title string

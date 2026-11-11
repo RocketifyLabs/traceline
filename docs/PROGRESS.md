@@ -29,6 +29,7 @@ Last updated at the end of the autonomous build run.
 | T20 static site | done |
 | T21 demo video | **blocked** — see below |
 | T22 clean-clone rebuild | done |
+| T23 hand-checked fixtures | done |
 
 ## Measured results
 
@@ -42,6 +43,22 @@ Last updated at the end of the autonomous build run.
 - Heavy volume: 662k spans in 15.5 s.
 - Image: **11.3 MB** distroless static binary.
 - Clean clone → byte-identical artifacts including the PDF.
+
+## Fixtures
+
+Three small captures in `fixtures/`, each proving one behaviour and documented with its
+expected result in `fixtures/README.md`:
+
+| Fixture | Lines | Proves |
+|---|---|---|
+| `pool-exhaustion/` | 90 logs, 30 spans | names `db-proxy` (high confidence) ahead of the two victims, with the causal chain hand-written into the timestamps |
+| `steady-state/` | 36 logs, 12 spans | returns **insufficient evidence** for a healthy capture |
+| `messy-input/` | 37 logs, 4 bad | counts four distinct rejection reasons and still finds the cause |
+
+`internal/fixtures` runs all three and asserts the documented outcomes, so the README cannot
+drift away from the code. They are also on the static site.
+
+Writing them found a real bug: see item 15.
 
 ## Nothing is mocked
 
@@ -118,3 +135,10 @@ Recorded because each was found by measuring, not by reasoning:
 14. 100% on the 20-scenario held-out set was arithmetically true and statistically
     meaningless (±11 points). Added a 500-scenario evaluation set and a confidence interval
     next to every reported accuracy.
+15. Window detection computed its median/MAD reference over ALL bins. When roughly half the
+    capture is incident — the normal case for a short capture — the median lands halfway up,
+    the MAD becomes the size of the shift, and the threshold ends up above the maximum
+    observed rate. No bin could ever be flagged, the window collapsed to zero width, and a
+    capture with an obvious incident reported "insufficient evidence". Now referenced from the
+    lower half of the rates. Found by writing a 90-line fixture, which is exactly what
+    fixtures are for.

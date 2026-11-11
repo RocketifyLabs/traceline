@@ -105,6 +105,11 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
   **Workaround until then:** `site/index.html` is a live, clickable version of the same
   walkthrough (3 real reports plus the benchmark table), and `make demo` reproduces the
   demo segment exactly.
+- [x] **T23 Hand-checked fixtures.** `fixtures/` with three small captures (a real incident,
+  a healthy capture, a dirty capture), each documented with its expected result and asserted
+  by `internal/fixtures`.
+  **Accept:** each fixture loads, analyzes, and produces its documented outcome; the dirty one
+  distinguishes all four rejection reasons.
 - [x] **T22 Final rebuild check.** Judge-style rebuild from scratch.
   **Accept:** `make verify` passes on a clean clone, tests offline, nothing missing.
   **Verified:** a clean `git clone` builds with `GOPROXY=off CGO_ENABLED=0`, the full suite
