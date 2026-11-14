@@ -165,15 +165,19 @@ jobs:
           cache: true
           cache-dependency-path: gui/go.sum
 
-      # Fyne needs a C toolchain and the GL/X11 headers on Linux.
-      - name: Install C toolchain and GL/X11 headers
+      # Fyne pulls in GLFW, which compiles both the X11 and the Wayland backend,
+      # so libwayland-dev is required in addition to the GL/X11 headers —
+      # without it the build dies on `wayland-client-core.h: No such file`.
+      - name: Install C toolchain, GL/X11 headers and Wayland headers
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             gcc \
             libgl1-mesa-dev \
             xorg-dev \
-            libxkbcommon-dev
+            libxkbcommon-dev \
+            libwayland-dev \
+            wayland-protocols
 
       - name: Build the GUI (CGO enabled)
         working-directory: gui
