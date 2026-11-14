@@ -3,7 +3,7 @@
 Continuous record of what is done, what is mocked, and what genuinely needs a decision.
 Last updated at the end of the autonomous build run.
 
-## Status: 24 of 25 tasks complete
+## Status: 24 of 25 delivered; T21 (demo video) deselected, not pending
 
 | Task | State |
 |---|---|
@@ -27,7 +27,7 @@ Last updated at the end of the autonomous build run.
 | T18 perf test | done |
 | T19 README | done |
 | T20 static site | done |
-| T21 demo video | **blocked** — see below |
+| T21 demo video | deselected 2026-11-14 — deadline passed, no consumer |
 | T22 clean-clone rebuild | done |
 | T23 hand-checked fixtures | done |
 | T24 desktop GUI (`gui/`, Fyne + CGO) | done on Windows |

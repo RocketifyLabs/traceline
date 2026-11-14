@@ -97,14 +97,13 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
   **Accept:** a fresh reader can go from clone to demo using only the README.
 - [x] **T20 Static site.** `site/` with 3 pre-generated reports plus the benchmark table.
   **Accept:** opens from `file://` with no server and no network.
-- [ ] **T21 Demo video.** 2-3 minutes.
-  **Accept:** uploaded and linked in the README.
-  **Blocked:** recording a screen-capture video is not something this environment can do.
-  The script is ready in `docs/spec/spec.md` §13 and every command it calls is verified
-  working, so the video is a recording session, not remaining development.
-  **Workaround until then:** `site/index.html` is a live, clickable version of the same
-  walkthrough (3 real reports plus the benchmark table), and `make demo` reproduces the
-  demo segment exactly.
+- [~] **T21 Demo video.** Deselected on 2026-11-14, not deferred.
+  **Reason:** the buildathon deadline has passed, so a submission video has no consumer. The
+  owner will record one in the future only if a concrete need appears; it is not a backlog item.
+  **Nothing is blocked by it.** The script in `docs/spec/spec.md` §13 is still accurate and every
+  command in it is verified working, so recording later is a screen-capture session over existing
+  behaviour, not remaining development. `site/index.html` is a live clickable version of the same
+  walkthrough, and the GUI's **Generate demo** button now produces the same full run in one click.
 - [x] **T23 Hand-checked fixtures.** `fixtures/` with three small captures (a real incident,
   a healthy capture, a dirty capture), each documented with its expected result and asserted
   by `internal/fixtures`.

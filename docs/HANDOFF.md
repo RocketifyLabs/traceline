@@ -14,7 +14,7 @@ published repo, not recalled from conversation.
 | Working directory | `D:\Projetos\omnirush-buildhaton-guide` |
 | Branch / remote | `master` → `origin` = `github.com/RocketifyLabs/traceline` |
 | Repo | public, AGPL-3.0 (GitHub identifies it as `AGPL-3.0`) |
-| Tasks done | 24 of 25 (`docs/spec/tasks.md`); only T21 (video) is open |
+| Tasks done | 24 of 25 delivered; T21 (demo video) was **deselected**, not pending |
 | Tests | 163, 17 packages, green |
 | Verification | `go test -count=1 -short ./...` and `GOPROXY=off CGO_ENABLED=0 go build ./...` |
 | Binary | 5.2 MB static, zero external Go dependencies |
@@ -106,7 +106,7 @@ practical, so those want CI runners. `gui/README.md` carries the per-OS commands
 | `docs/PROGRESS.md` | Task table, measured results, the 15 bugs found during the build |
 | `docs/spec/constitution.md` | Non-negotiables: determinism, offline, stdlib-only, no black box |
 | `docs/spec/spec.md` | FR-1..FR-12 with acceptance criteria, §13 demo video script |
-| `docs/spec/tasks.md` | T01..T24, all ticked except T21 (video) |
+| `docs/spec/tasks.md` | T01..T24 ticked; T21 deselected with the reason recorded |
 | `api.go` | The public library API the GUI calls |
 | `gui/README.md` | The window: why it is a second module, how to build it per OS |
 | `fixtures/README.md` | Three hand-checked captures with expected results |
@@ -141,9 +141,13 @@ practical, so those want CI runners. `gui/README.md` carries the per-OS commands
     in this file became "Traceline" in a sentence that was about the *old* name. Rewrite docs
     that talk about the rename by hand; do not let a search-and-replace touch them.
 
-## Remaining open item
+## Demo video — deselected, not pending
 
-**T21 — demo video.** Cannot be recorded in this environment. The script is written in
-`docs/spec/spec.md` §13 and every command in it is verified working. `site/index.html` is a
-live clickable substitute, and the GUI is now a better recording target than the CLI: the demo
-button produces a full run in one click.
+**T21 was closed on 2026-11-14.** The buildathon deadline has passed, so a submission video has
+no consumer; the owner will record one in the future only if a concrete need appears. Do not
+treat it as backlog and do not re-propose it.
+
+Nothing is blocked by it. The script in `docs/spec/spec.md` §13 is accurate and every command in
+it is verified, so recording later is a screen-capture session over existing behaviour.
+`site/index.html` is a live clickable walkthrough, and the GUI's **Generate demo** button now
+produces the same full run in one click.
