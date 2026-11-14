@@ -152,6 +152,7 @@ network, the build would fail before a single test ran.
 
 ## Docs
 
+- [`docs/HANDOFF.md`](docs/HANDOFF.md) — current state, settled decisions, what is next. **Start here.**
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — why Go, why no PNG, why this scope.
 - [`docs/spec/spec.md`](docs/spec/spec.md) — requirements with acceptance criteria.
 - [`docs/spec/plan.md`](docs/spec/plan.md) — architecture and package contracts.
