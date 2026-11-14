@@ -3,7 +3,7 @@
 Continuous record of what is done, what is mocked, and what genuinely needs a decision.
 Last updated at the end of the autonomous build run.
 
-## Status: 22 of 23 tasks complete
+## Status: 24 of 25 tasks complete
 
 | Task | State |
 |---|---|
@@ -30,6 +30,8 @@ Last updated at the end of the autonomous build run.
 | T21 demo video | **blocked** — see below |
 | T22 clean-clone rebuild | done |
 | T23 hand-checked fixtures | done |
+| T24 desktop GUI (`gui/`, Fyne + CGO) | done on Windows |
+| T25 rename, license, publish | done — public at `RocketifyLabs/traceline` |
 
 ## Measured results
 

@@ -73,6 +73,25 @@ Or against your own capture:
 go run ./cmd/traceline analyze --logs logs.jsonl --spans spans.jsonl --out out/report
 ```
 
+## Desktop app
+
+A native window around the same pipeline: drop `logs.jsonl` and `spans.jsonl`,
+press **Analyze**, read the ranked causes and the timeline on screen, then open
+the HTML report. **Generate demo** runs a seeded incident when you have no
+capture on hand.
+
+```bash
+cd gui && go build -o build/traceline-gui . && ./build/traceline-gui
+```
+
+It is a **separate module** (`gui/go.mod`) because a native window needs CGO and
+the platform graphics stack, while the core must keep proving
+`GOPROXY=off CGO_ENABLED=0 go build ./...`. The GUI imports the core through the
+small public API in [`api.go`](api.go) — the same `analyze.Run` and
+`report.WriteAll` the CLI calls, never a copy of them and never a shell-out to
+the binary. A C toolchain is required; see [`gui/README.md`](gui/README.md) for
+the per-OS packages.
+
 ## Requirements
 
 - **Go 1.27** — that is the whole toolchain. No package manager, no virtualenv.
@@ -163,6 +182,8 @@ network, the build would fail before a single test ran.
 - [`docs/spec/constitution.md`](docs/spec/constitution.md) — the non-negotiables.
 - [`docs/spec/tasks.md`](docs/spec/tasks.md) — progress.
 - [`LICENSING.md`](LICENSING.md) — what the AGPL allows, and when the commercial license matters.
+- [`gui/README.md`](gui/README.md) — the desktop window, and why it is a second module.
+- [`api.go`](api.go) — the public library API the GUI uses.
 
 ## License
 

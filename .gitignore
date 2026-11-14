@@ -18,3 +18,7 @@ coverage.html
 Thumbs.db
 .idea/
 .vscode/
+
+# GUI build output and logs
+/gui/build/
+/gui/*.log

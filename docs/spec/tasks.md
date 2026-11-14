@@ -115,3 +115,12 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
   **Verified:** a clean `git clone` builds with `GOPROXY=off CGO_ENABLED=0`, the full suite
   passes, and `traceline demo --seed 7` from that clone produces byte-identical `report.html`,
   `report.pdf`, `summary.md`, `result.json` and all three SVGs compared to the local build.
+- [x] **T24 Desktop GUI.** `gui/` as its own module (Fyne 2.8.2, CGO), importing the core
+  through the public API in `api.go` — never `internal/`, never shelling out to the CLI.
+  **Accept:** on Windows, `go build` in `gui/` produces a window that ingests a capture,
+  runs the real pipeline, shows the ranked causes with the score breakdown and the
+  timeline, writes the same five artifacts the CLI writes, and opens `report.html`.
+  **Verified:** built with MinGW-w64 GCC 16.2.0 (winlibs, UCRT/POSIX/SEH) on Windows 11;
+  the same `AnalyzeFiles`/`AnalyzeScenario` calls the window makes are the CLI's pipeline.
+  **Not verified here:** Linux and macOS builds — each needs its own C toolchain and GL
+  headers, so those want CI runners. `gui/README.md` states the packages required.
