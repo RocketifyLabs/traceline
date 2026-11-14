@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // logJSON is the on-disk shape of a log line, mirroring the documented schema.

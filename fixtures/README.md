@@ -7,7 +7,7 @@ input format without generating anything.
 Run any of them with:
 
 ```bash
-go run ./cmd/itm analyze \
+go run ./cmd/traceline analyze \
   --logs  fixtures/<name>/logs.jsonl \
   --spans fixtures/<name>/spans.jsonl \
   --out   out/<name>

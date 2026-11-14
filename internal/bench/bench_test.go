@@ -3,8 +3,8 @@ package bench
 import (
 	"testing"
 
-	"github.com/andrelbuzzo/itm/internal/analyze"
-	"github.com/andrelbuzzo/itm/internal/sim"
+	"github.com/RocketifyLabs/traceline/internal/analyze"
+	"github.com/RocketifyLabs/traceline/internal/sim"
 )
 
 // TestParseSeedRange covers the CLI's seed syntax.

@@ -1,4 +1,4 @@
-// Command itm is the Incident Time Machine.
+// Command traceline is the Traceline.
 //
 // It is deliberately thin: all behaviour lives in internal/cli so it can be
 // tested without spawning a process.
@@ -8,7 +8,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/andrelbuzzo/itm/internal/cli"
+	"github.com/RocketifyLabs/traceline/internal/cli"
 )
 
 func main() {

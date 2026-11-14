@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 const validLogs = `{"ts":"2026-10-16T10:00:01Z","service":"api-edge","level":"error","msg":"upstream timeout","trace_id":"t1"}

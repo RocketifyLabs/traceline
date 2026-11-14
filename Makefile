@@ -1,7 +1,7 @@
 .PHONY: help test test-all test-offline test-perf lint fmt build demo simulate bench site clean verify
 
 GO ?= go
-BIN ?= bin/itm
+BIN ?= bin/traceline
 
 help:           ## show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -28,27 +28,27 @@ lint:           ## static checks (vet + gofmt, no external linters needed)
 fmt:            ## auto-format
 	$(GO) fmt ./internal/... ./cmd/... ./scripts/...
 
-build:          ## build the static binary to bin/itm
-	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "-s -w" -o $(BIN) ./cmd/itm
+build:          ## build the static binary to bin/traceline
+	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "-s -w" -o $(BIN) ./cmd/traceline
 
 demo:           ## simulate an incident, analyze it, write the report to out/demo
-	$(GO) run ./cmd/itm demo --out out/demo
+	$(GO) run ./cmd/traceline demo --out out/demo
 
 simulate:       ## write a scenario's logs and spans to out/scenario
-	$(GO) run ./cmd/itm simulate --seed 7 --out out/scenario
+	$(GO) run ./cmd/traceline simulate --seed 7 --out out/scenario
 
 bench:          ## run the held-out benchmark, rewrite BENCHMARK.md
-	$(GO) run ./cmd/itm bench --seeds 1001-1020 --out BENCHMARK.md
+	$(GO) run ./cmd/traceline bench --seeds 1001-1020 --out BENCHMARK.md
 
 site:           ## regenerate the static site (3 reports + benchmark table)
 	$(GO) run scripts/build_site.go
 
 verify:         ## judge-style check: clean build, tests with no network
-	docker build -t itm .
-	docker build -t itm-test --target test .
-	docker run --rm --network none itm-test make test
+	docker build -t traceline .
+	docker build -t traceline-test --target test .
+	docker run --rm --network none traceline-test make test
 	@echo "--- image size ---"
-	docker images itm --format "{{.Repository}}:{{.Tag}} {{.Size}}"
+	docker images traceline --format "{{.Repository}}:{{.Tag}} {{.Size}}"
 
 clean:
 	rm -rf bin out

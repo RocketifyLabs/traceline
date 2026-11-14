@@ -1,4 +1,4 @@
-// Package cli is the `itm` command line.
+// Package cli is the `traceline` command line.
 //
 // Exit codes are part of the contract (docs/spec/spec.md FR-11):
 //
@@ -18,7 +18,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/andrelbuzzo/itm"
+	"github.com/RocketifyLabs/traceline"
 )
 
 // Exit codes.
@@ -28,13 +28,13 @@ const (
 	ExitUsage = 2
 )
 
-const usage = `itm — Incident Time Machine
+const usage = `Traceline
 
 Reconstruct what happened during an outage: a timeline, a dependency graph, and
 a ranked list of probable root causes with evidence.
 
 Usage:
-  itm <command> [flags]
+  traceline <command> [flags]
 
 Commands:
   analyze    analyze captured logs and spans
@@ -43,16 +43,16 @@ Commands:
   demo       simulate an incident and analyze it end to end
 
 Flags:
-  -h, --help       show help for itm or for a command
+  -h, --help       show help for traceline or for a command
   -v, --version    print the version
 
-Run "itm <command> --help" for the flags of a command.
+Run "traceline <command> --help" for the flags of a command.
 
 Examples:
-  itm analyze --logs logs.jsonl --spans spans.jsonl --out out/report
-  itm simulate --seed 7 --out out/scenario
-  itm bench --seeds 1001-1020 --out BENCHMARK.md
-  itm demo --out out/demo
+  traceline analyze --logs logs.jsonl --spans spans.jsonl --out out/report
+  traceline simulate --seed 7 --out out/scenario
+  traceline bench --seeds 1001-1020 --out BENCHMARK.md
+  traceline demo --out out/demo
 `
 
 // Env carries everything the commands need, so tests can drive the CLI without
@@ -81,7 +81,7 @@ func Run(ctx context.Context, args []string, env Env) int {
 		fmt.Fprint(env.Stdout, usage)
 		return ExitOK
 	case "-v", "--version", "version":
-		fmt.Fprintf(env.Stdout, "itm %s\n", itm.Version)
+		fmt.Fprintf(env.Stdout, "traceline %s\n", traceline.Version)
 		return ExitOK
 	}
 
@@ -96,7 +96,7 @@ func Run(ctx context.Context, args []string, env Env) int {
 	case "demo":
 		return runDemoReal(ctx, rest, env)
 	default:
-		fmt.Fprintf(env.Stderr, "itm: unknown command %q\n\n", command)
+		fmt.Fprintf(env.Stderr, "traceline: unknown command %q\n\n", command)
 		fmt.Fprint(env.Stderr, usage)
 		return ExitUsage
 	}
@@ -105,17 +105,17 @@ func Run(ctx context.Context, args []string, env Env) int {
 // notImplemented is the honest stub: it names the task that will implement the
 // command and exits non-zero, so a stub is never mistaken for a result.
 func notImplemented(env Env, command, task string) int {
-	fmt.Fprintf(env.Stderr, "itm %s: not implemented yet (see docs/spec/tasks.md %s)\n", command, task)
+	fmt.Fprintf(env.Stderr, "traceline %s: not implemented yet (see docs/spec/tasks.md %s)\n", command, task)
 	return ExitError
 }
 
 // newFlagSet returns a FlagSet that prints its own usage and never calls
 // os.Exit, so Run stays testable.
 func newFlagSet(name string, env Env) *flag.FlagSet {
-	fs := flag.NewFlagSet("itm "+name, flag.ContinueOnError)
+	fs := flag.NewFlagSet("traceline "+name, flag.ContinueOnError)
 	fs.SetOutput(env.Stderr)
 	fs.Usage = func() {
-		fmt.Fprintf(env.Stdout, "Usage: itm %s [flags]\n\nFlags:\n", name)
+		fmt.Fprintf(env.Stdout, "Usage: traceline %s [flags]\n\nFlags:\n", name)
 		fs.PrintDefaults()
 	}
 	return fs
@@ -129,7 +129,7 @@ func parse(fs *flag.FlagSet, args []string, env Env, name string) (int, bool) {
 			fs.Usage()
 			return ExitOK, false
 		}
-		fmt.Fprintf(env.Stderr, "itm %s: %v\n", name, err)
+		fmt.Fprintf(env.Stderr, "traceline %s: %v\n", name, err)
 		fs.Usage()
 		return ExitUsage, false
 	}
@@ -146,7 +146,7 @@ func flagWasSet(fs *flag.FlagSet, name string) bool {
 	return set
 }
 
-// Main is the entry point used by cmd/itm.
+// Main is the entry point used by cmd/traceline.
 func Main(ctx context.Context, args []string) int {
 	return Run(ctx, args, Env{Stdout: os.Stdout, Stderr: os.Stderr})
 }

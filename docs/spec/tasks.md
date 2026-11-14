@@ -10,13 +10,13 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
 
 ## Phase 0 — Foundations
 
-- [x] **T01 Scaffold.** git repo, MIT `LICENSE`, `.gitignore`, `go.mod` (no `require` block),
-  `Makefile`, `.env.example`, `cmd/itm` entry point.
-  **Accept:** `make build` produces a static binary; `itm --version` works.
+- [x] **T01 Scaffold.** git repo, AGPL-3.0 `LICENSE` + `LICENSING.md`, `.gitignore`, `go.mod` (no `require` block),
+  `Makefile`, `.env.example`, `cmd/traceline` entry point.
+  **Accept:** `make build` produces a static binary; `traceline --version` works.
 - [x] **T02 Offline proof.** `internal/offline` asserts the module graph has no external
   dependency and that `GOPROXY=off CGO_ENABLED=0 go build ./...` succeeds; a `test` stage in
   the `Dockerfile` keeps `make test` runnable with the network off.
-  **Accept:** `make test` passes locally; `docker run --rm --network none itm-test make test`
+  **Accept:** `make test` passes locally; `docker run --rm --network none traceline-test make test`
   passes; shipped image is a distroless static binary.
 - [x] **T03 Spec docs.** `constitution.md`, `spec.md`, `plan.md`, `tasks.md`, `DECISIONS.md`.
   **Accept:** every FR/NFR in `spec.md` has an acceptance criterion and at least one task
@@ -60,7 +60,7 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
 ## Phase 3 — Explain it
 
 - [x] **T10 RCA ranking.** Four-factor score with per-factor breakdown, weights in
-  `itm/rca_weights.json` (overridable with `--weights`), confidence labels,
+  `traceline/rca_weights.json` (overridable with `--weights`), confidence labels,
   insufficient-evidence path, documented tie-break (score desc → service asc → evidence id).
   **Accept:** injected cause ranks first on fixtures; a red-herring service does not; empty
   input returns "insufficient evidence"; shuffling input order does not change the ranking.
@@ -74,7 +74,7 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
 
 ## Phase 4 — Prove and present it
 
-- [x] **T13 Benchmark + floor test.** `itm bench` over a seed range; top-1, top-3, mean
+- [x] **T13 Benchmark + floor test.** `traceline bench` over a seed range; top-1, top-3, mean
   time-to-detect (misses excluded from TTD, counted separately), per-fault table; writes
   `BENCHMARK.md`.
   **Accept:** a test asserts the top-1 floor (≥ 60%) so a regression fails CI.
@@ -113,5 +113,5 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
 - [x] **T22 Final rebuild check.** Judge-style rebuild from scratch.
   **Accept:** `make verify` passes on a clean clone, tests offline, nothing missing.
   **Verified:** a clean `git clone` builds with `GOPROXY=off CGO_ENABLED=0`, the full suite
-  passes, and `itm demo --seed 7` from that clone produces byte-identical `report.html`,
+  passes, and `traceline demo --seed 7` from that clone produces byte-identical `report.html`,
   `report.pdf`, `summary.md`, `result.json` and all three SVGs compared to the local build.

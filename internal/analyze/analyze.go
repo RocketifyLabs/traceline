@@ -9,12 +9,12 @@ package analyze
 import (
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/anomaly"
-	"github.com/andrelbuzzo/itm/internal/graph"
-	"github.com/andrelbuzzo/itm/internal/model"
-	"github.com/andrelbuzzo/itm/internal/rca"
-	"github.com/andrelbuzzo/itm/internal/timeline"
-	"github.com/andrelbuzzo/itm/internal/windows"
+	"github.com/RocketifyLabs/traceline/internal/anomaly"
+	"github.com/RocketifyLabs/traceline/internal/graph"
+	"github.com/RocketifyLabs/traceline/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/rca"
+	"github.com/RocketifyLabs/traceline/internal/timeline"
+	"github.com/RocketifyLabs/traceline/internal/windows"
 )
 
 // Input is either a file-based analysis or a simulated scenario.

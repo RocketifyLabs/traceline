@@ -15,7 +15,7 @@ from conversation.
 | Branch / last commit | `master` @ `f272719` |
 | Tasks done | 23 of 24 (`docs/spec/tasks.md`) |
 | Tests | 163, 17 packages, green |
-| Verification | `go test -count=1 -short ./...` and `docker run --rm --network none itm-test make test` |
+| Verification | `go test -count=1 -short ./...` and `docker run --rm --network none traceline-test make test` |
 | Binary | 5.2 MB static, zero external Go dependencies |
 | Image | 11.3 MB distroless |
 | Benchmark | top-1 97.0% ±1.5, top-3 100%, 500 held-out seeds |
@@ -33,7 +33,7 @@ These were argued and settled. Re-asking wastes the user's time.
 |---|---|
 | **Language** | Go 1.27, standard library only. `go.mod` has no `require` block; a test fails if one appears. Evidence and rejected alternative: `docs/DECISIONS.md` D-001 |
 | **Graphical output** | HTML (inline SVG) + vector PDF + standalone SVGs. **No PNG** — D-002 |
-| **New product name** | **Traceline** (was ITM / Incident Time Machine) |
+| **New product name** | **Traceline** (was Traceline / Traceline) |
 | **Repo slug** | `incident-time-machine` |
 | **GitHub org** | `RocketifyLabs` (exact slug — no hyphen before "Labs") |
 | **Copyright holder** | `André Luiz Buzzo de Souza` (CPF-level name, not the defunct Rocketify Consultoria CNPJ) |
@@ -63,8 +63,8 @@ Nothing has been renamed or pushed. No git remote exists. `gh` is authenticated 
 
 Required steps:
 
-1. Rename module `github.com/andrelbuzzo/itm` → `github.com/RocketifyLabs/traceline` in
-   `go.mod`, plus every import (~14 files), `cmd/itm` → `cmd/traceline`, the binary name, the
+1. Rename module `github.com/RocketifyLabs/traceline` → `github.com/RocketifyLabs/traceline` in
+   `go.mod`, plus every import (~14 files), `cmd/traceline` → `cmd/traceline`, the binary name, the
    `Dockerfile`, `Makefile`, CLI help strings, README, and `docs/`.
 2. Replace `LICENSE` (currently MIT) with AGPL-3.0, copyright
    `André Luiz Buzzo de Souza`, plus a short `LICENSING.md` explaining the dual-license offer.
@@ -73,7 +73,7 @@ Required steps:
 5. Decide whether `time-machine.png` belongs in the repo.
 
 **Watch out:** `internal/offline/offline_test.go` hardcodes the module path
-`github.com/andrelbuzzo/itm` for its dependency-graph assertion. It must be updated with the
+`github.com/RocketifyLabs/traceline` for its dependency-graph assertion. It must be updated with the
 rename or the test silently passes for the wrong reason.
 
 ### 2. GUI module (Option A)
@@ -99,7 +99,7 @@ Not started. Both are small because the pipeline is pure and deterministic.
 - **Temporal scrubbing:** the report already contains `Timeline` with timestamps and `Edges`
   with per-edge timing. Filtering the timeline and graph by an instant is a rendering concern,
   so it belongs in `internal/report` (or the GUI), not in the analysis.
-- CLI surface to add: `itm replay` (or `traceline replay`) with `--window-a`, `--window-b`,
+- CLI surface to add: `traceline replay` (or `traceline replay`) with `--window-a`, `--window-b`,
   `--weights-a`, `--weights-b`.
 
 ---

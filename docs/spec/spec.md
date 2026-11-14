@@ -1,7 +1,7 @@
 # Specification
 
-**Product:** Incident Time Machine (ITM)
-**One-liner:** Feed ITM the logs and traces from an outage and it reconstructs what
+**Product:** Traceline
+**One-liner:** Feed Traceline the logs and traces from an outage and it reconstructs what
 happened: a timeline, a dependency graph, and a ranked list of probable root causes with
 evidence.
 
@@ -80,7 +80,7 @@ references (log line ids, span ids).
 
 Strength is a **robust z-score**: `0.6745 * (x - median) / MAD`, with MAD floored at a small
 epsilon so a perfectly constant baseline does not divide by zero. An anomaly is emitted only
-when the z-score is `>= 3.5` (configurable in `itm/rca_weights.json`); below that the detector
+when the z-score is `>= 3.5` (configurable in `traceline/rca_weights.json`); below that the detector
 returns nothing rather than a weak signal. A service is "anomalous" for ranking purposes if it
 has at least one anomaly above threshold.
 
@@ -104,8 +104,8 @@ dependents explained, and "not explained by an anomalous dependency". Weights li
 config file. Output the top-k with a per-factor breakdown and a confidence label. If no
 anomaly passes threshold, output **insufficient evidence**.
 
-The weights file is `itm/rca_weights.json`, overridable with `--weights <path>` on
-`itm analyze` (a path, never a credential). Defaults and the exact formula are in
+The weights file is `traceline/rca_weights.json`, overridable with `--weights <path>` on
+`traceline analyze` (a path, never a credential). Defaults and the exact formula are in
 `plan.md`. A **red herring** — a service that is noisy but whose anomaly neither precedes
 nor explains any downstream anomaly — must score below the true cause; it is a non-fault
 used to test discrimination, not a label the tool is told about.
@@ -136,7 +136,7 @@ be a raster can be exported from the browser.
 **Acceptance:** golden-file test on normalized HTML; a test asserts no `http(s)://`
 resource references; a test parses `report.pdf` and confirms page count and extractable text;
 each standalone SVG parses as XML. Normalization replaces, before comparison: every absolute
-path, the `itm` version string, any timestamp rendered as "generated at", and whitespace-only
+path, the `traceline` version string, any timestamp rendered as "generated at", and whitespace-only
 runs. Nothing else is normalized — if the analysis changes, the golden test must catch it.
 
 ### FR-9 Simulator
@@ -145,7 +145,7 @@ Seeded generator of a service topology plus traffic, logs and spans, with fault 
 **Acceptance:** determinism test — run twice, compare hashes.
 
 ### FR-10 Benchmark
-`itm bench` runs N seeded scenarios and reports top-1, top-3, mean time-to-detect and a
+`traceline bench` runs N seeded scenarios and reports top-1, top-3, mean time-to-detect and a
 per-fault-type table. Writes `BENCHMARK.md`.
 
 **Time-to-detect** is defined as `detected incident start − seeded fault start`, in seconds,
@@ -156,7 +156,7 @@ it in as zero would flatter the number.
 **Acceptance:** a test asserts the floor below, so regressions fail CI.
 
 ### FR-11 CLI
-`itm analyze`, `itm simulate`, `itm bench`, `itm demo`. Clear `--help`, meaningful exit
+`traceline analyze`, `traceline simulate`, `traceline bench`, `traceline demo`. Clear `--help`, meaningful exit
 codes, no absolute paths in output.
 
 Exit codes: **0** success · **1** analysis failed or refused (unreadable input, no data,
@@ -166,10 +166,10 @@ script can branch on the code without parsing text.
 **Acceptance:** CLI tests drive the command layer directly (no subprocess needed, which keeps
 them fast and offline): each command's `--help` exits 0, a missing required argument exits 2,
 and a genuine failure exits 1. One additional test builds the real binary and runs
-`itm --version` through it.
+`traceline --version` through it.
 
 ### FR-12 Demo and live site
-`itm demo` simulates an incident, analyzes it, and writes the report to `./out/demo/`. A
+`traceline demo` simulates an incident, analyzes it, and writes the report to `./out/demo/`. A
 static `site/` (3 pre-generated incident reports plus the benchmark table) deploys to
 GitHub Pages.
 
@@ -206,4 +206,4 @@ Optional: slow-burn resource leak.
   recorded measurement.
 - **Portable** — no absolute or user-specific paths anywhere.
 - **Safe** — never executes input data; all log content HTML-escaped in the report.
-- **License** — MIT.
+- **License** — AGPL-3.0-or-later, with a commercial license available (`LICENSING.md`).

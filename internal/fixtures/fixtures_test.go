@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/andrelbuzzo/itm/internal/analyze"
-	"github.com/andrelbuzzo/itm/internal/ingest"
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/analyze"
+	"github.com/RocketifyLabs/traceline/internal/ingest"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // fixturesDir is the repository's fixtures directory, two levels above this

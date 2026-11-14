@@ -8,17 +8,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/andrelbuzzo/itm"
-	"github.com/andrelbuzzo/itm/internal/analyze"
-	"github.com/andrelbuzzo/itm/internal/bench"
-	"github.com/andrelbuzzo/itm/internal/ingest"
-	"github.com/andrelbuzzo/itm/internal/model"
-	"github.com/andrelbuzzo/itm/internal/report"
-	"github.com/andrelbuzzo/itm/internal/sim"
-	"github.com/andrelbuzzo/itm/internal/windows"
+	"github.com/RocketifyLabs/traceline"
+	"github.com/RocketifyLabs/traceline/internal/analyze"
+	"github.com/RocketifyLabs/traceline/internal/bench"
+	"github.com/RocketifyLabs/traceline/internal/ingest"
+	"github.com/RocketifyLabs/traceline/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/report"
+	"github.com/RocketifyLabs/traceline/internal/sim"
+	"github.com/RocketifyLabs/traceline/internal/windows"
 )
 
-// runAnalyze is the real implementation of `itm analyze`.
+// runAnalyze is the real implementation of `traceline analyze`.
 func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 	fs := newFlagSet("analyze", env)
 	logsPath := fs.String("logs", "", "JSONL log file (required)")
@@ -31,7 +31,7 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 		return code
 	}
 	if *logsPath == "" || *spansPath == "" || *outDir == "" {
-		fmt.Fprint(env.Stderr, "itm analyze: --logs, --spans and --out are required\n")
+		fmt.Fprint(env.Stderr, "traceline analyze: --logs, --spans and --out are required\n")
 		return ExitUsage
 	}
 	_ = ctx
@@ -39,16 +39,16 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 
 	logRes, err := ingest.Logs(*logsPath)
 	if err != nil {
-		fmt.Fprintf(env.Stderr, "itm analyze: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline analyze: %v\n", err)
 		return ExitError
 	}
 	spanRes, err := ingest.Spans(*spansPath)
 	if err != nil {
-		fmt.Fprintf(env.Stderr, "itm analyze: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline analyze: %v\n", err)
 		return ExitError
 	}
 	if len(logRes.Records) == 0 && len(spanRes.Records) == 0 {
-		fmt.Fprint(env.Stderr, "itm analyze: no usable records in the input\n")
+		fmt.Fprint(env.Stderr, "traceline analyze: no usable records in the input\n")
 		return ExitError
 	}
 
@@ -57,7 +57,7 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 		start, err1 := parseISO(*incStart)
 		end, err2 := parseISO(*incEnd)
 		if err1 != nil || err2 != nil {
-			fmt.Fprint(env.Stderr, "itm analyze: --incident-start and --incident-end must both be valid ISO 8601\n")
+			fmt.Fprint(env.Stderr, "traceline analyze: --incident-start and --incident-end must both be valid ISO 8601\n")
 			return ExitUsage
 		}
 		cfg := windows.DefaultConfig()
@@ -73,9 +73,9 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 	if err := report.WriteAll(*outDir, rep, report.Options{
 		Title:   "Incident report",
 		Source:  filepath.Base(*logsPath) + " + " + filepath.Base(*spansPath),
-		Version: itm.Version,
+		Version: traceline.Version,
 	}); err != nil {
-		fmt.Fprintf(env.Stderr, "itm analyze: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline analyze: %v\n", err)
 		return ExitError
 	}
 
@@ -94,21 +94,21 @@ func runSimulateReal(ctx context.Context, args []string, env Env) int {
 	}
 	_ = ctx
 	if *outDir == "" || !flagWasSet(fs, "seed") {
-		fmt.Fprint(env.Stderr, "itm simulate: --seed and --out are required\n")
+		fmt.Fprint(env.Stderr, "traceline simulate: --seed and --out are required\n")
 		return ExitUsage
 	}
 
 	sc := sim.Generate(int64(*seed), *fault, sim.DefaultConfig())
 	if err := os.MkdirAll(*outDir, 0o755); err != nil {
-		fmt.Fprintf(env.Stderr, "itm simulate: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline simulate: %v\n", err)
 		return ExitError
 	}
 	if err := writeJSONL(filepath.Join(*outDir, "logs.jsonl"), logLines(sc.Logs)); err != nil {
-		fmt.Fprintf(env.Stderr, "itm simulate: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline simulate: %v\n", err)
 		return ExitError
 	}
 	if err := writeJSONL(filepath.Join(*outDir, "spans.jsonl"), spanLines(sc.Spans)); err != nil {
-		fmt.Fprintf(env.Stderr, "itm simulate: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline simulate: %v\n", err)
 		return ExitError
 	}
 	meta := fmt.Sprintf("seed: %d\nfault: %s\ntrue_cause: %s\nfault_start: %s\nfault_end: %s\nlogs: %d\nspans: %d\n",
@@ -117,7 +117,7 @@ func runSimulateReal(ctx context.Context, args []string, env Env) int {
 		sc.FaultEnd.Format("2006-01-02T15:04:05Z07:00"),
 		len(sc.Logs), len(sc.Spans))
 	if err := os.WriteFile(filepath.Join(*outDir, "scenario.yaml"), []byte(meta), 0o644); err != nil {
-		fmt.Fprintf(env.Stderr, "itm simulate: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline simulate: %v\n", err)
 		return ExitError
 	}
 
@@ -138,7 +138,7 @@ func runBenchReal(ctx context.Context, args []string, env Env) int {
 
 	r, err := bench.ParseSeedRange(*seeds)
 	if err != nil {
-		fmt.Fprintf(env.Stderr, "itm bench: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline bench: %v\n", err)
 		return ExitUsage
 	}
 	if r == bench.HeldOutSeeds {
@@ -148,9 +148,9 @@ func runBenchReal(ctx context.Context, args []string, env Env) int {
 	}
 
 	res := bench.Run(r, sim.DefaultConfig(), analyze.DefaultOptions())
-	md := res.Markdown(fmt.Sprintf("`itm bench --seeds %d-%d`", r.From, r.To))
+	md := res.Markdown(fmt.Sprintf("`traceline bench --seeds %d-%d`", r.From, r.To))
 	if err := os.WriteFile(*outPath, []byte(md), 0o644); err != nil {
-		fmt.Fprintf(env.Stderr, "itm bench: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline bench: %v\n", err)
 		return ExitError
 	}
 
@@ -179,9 +179,9 @@ func runDemoReal(ctx context.Context, args []string, env Env) int {
 	if err := report.WriteAll(*outDir, rep, report.Options{
 		Title:   fmt.Sprintf("Incident report — seed %d", sc.Seed),
 		Source:  fmt.Sprintf("simulated scenario seed=%d fault=%s", sc.Seed, sc.Fault),
-		Version: itm.Version,
+		Version: traceline.Version,
 	}); err != nil {
-		fmt.Fprintf(env.Stderr, "itm demo: %v\n", err)
+		fmt.Fprintf(env.Stderr, "traceline demo: %v\n", err)
 		return ExitError
 	}
 

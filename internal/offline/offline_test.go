@@ -27,7 +27,7 @@ func TestModuleHasNoExternalDependencies(t *testing.T) {
 		t.Fatalf("go list -deps failed: %v\n%s", err, out)
 	}
 
-	module := "github.com/andrelbuzzo/itm"
+	module := "github.com/RocketifyLabs/traceline"
 	for _, dep := range strings.Fields(string(out)) {
 		if dep == module || strings.HasPrefix(dep, module+"/") {
 			continue
@@ -37,7 +37,7 @@ func TestModuleHasNoExternalDependencies(t *testing.T) {
 		// domain in it (github.com/..., golang.org/...) is external.
 		first := strings.SplitN(dep, "/", 2)[0]
 		if strings.Contains(first, ".") {
-			t.Errorf("external dependency found: %s\nITM must stay standard-library only", dep)
+			t.Errorf("external dependency found: %s\nTraceline must stay standard-library only", dep)
 		}
 	}
 }

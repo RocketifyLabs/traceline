@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# ITM rebuilds from this file on a clean Linux machine with no network at run
+# Traceline rebuilds from this file on a clean Linux machine with no network at run
 # time. The exact commands a reviewer runs:
-#   docker build -t itm .
-#   docker run --rm --network none itm make test
+#   docker build -t traceline .
+#   docker run --rm --network none traceline make test
 #
 # Go produces a self-contained static binary, so the shipped image carries no
 # interpreter, no package manager and no toolchain: only the binary.
@@ -21,7 +21,7 @@ COPY . .
 ENV CGO_ENABLED=0 \
     GOOS=linux
 
-RUN go build -trimpath -ldflags "-s -w" -o /out/itm ./cmd/itm
+RUN go build -trimpath -ldflags "-s -w" -o /out/traceline ./cmd/traceline
 
 # ---------- test stage ----------
 # Kept separate so `make test` can run with the network switched off even though
@@ -43,7 +43,7 @@ CMD ["make", "test"]
 # ---------- runtime stage ----------
 FROM gcr.io/distroless/static-debian12:nonroot
 
-COPY --from=build /out/itm /itm
+COPY --from=build /out/traceline /traceline
 
 USER nonroot:nonroot
-ENTRYPOINT ["/itm"]
+ENTRYPOINT ["/traceline"]

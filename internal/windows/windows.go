@@ -10,7 +10,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // Config holds the defaults documented in docs/spec/spec.md FR-3.
@@ -26,7 +26,7 @@ type Config struct {
 	ConsecutiveBins int
 }
 
-// DefaultConfig matches the values in itm/rca_weights.json.
+// DefaultConfig matches the values in traceline/rca_weights.json.
 func DefaultConfig() Config {
 	return Config{
 		BaselineCap:     20 * time.Minute,

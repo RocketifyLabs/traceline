@@ -13,9 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/determinism"
-	"github.com/andrelbuzzo/itm/internal/model"
-	"github.com/andrelbuzzo/itm/internal/stats"
+	"github.com/RocketifyLabs/traceline/internal/determinism"
+	"github.com/RocketifyLabs/traceline/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/stats"
 )
 
 // Result is the dependency graph plus the bookkeeping needed to explain what

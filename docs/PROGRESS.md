@@ -66,10 +66,10 @@ There are no stubs or fakes in the delivered code. Every command does its real w
 
 | Command | Real behaviour |
 |---|---|
-| `itm analyze` | reads JSONL from disk, runs the full pipeline, writes 5 artifacts |
-| `itm simulate` | generates a scenario and writes `logs.jsonl`, `spans.jsonl`, `scenario.yaml` |
-| `itm bench` | runs 20 scenarios and writes `BENCHMARK.md` |
-| `itm demo` | simulates, analyzes, writes everything, and states HIT/MISS against ground truth |
+| `traceline analyze` | reads JSONL from disk, runs the full pipeline, writes 5 artifacts |
+| `traceline simulate` | generates a scenario and writes `logs.jsonl`, `spans.jsonl`, `scenario.yaml` |
+| `traceline bench` | runs 20 scenarios and writes `BENCHMARK.md` |
+| `traceline demo` | simulates, analyzes, writes everything, and states HIT/MISS against ground truth |
 
 The simulator is not a mock of anything external — it is a product feature, the benchmark's
 ground truth. That is stated in the README where the numbers are.

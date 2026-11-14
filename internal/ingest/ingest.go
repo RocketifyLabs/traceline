@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // Skip reasons, used as keys in the data-quality tally. They are a closed set

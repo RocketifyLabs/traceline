@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 func base() time.Time { return time.Date(2026, 10, 16, 10, 0, 0, 0, time.UTC) }

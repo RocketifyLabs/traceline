@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 func ts(min, sec int) time.Time {

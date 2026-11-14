@@ -16,10 +16,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/determinism"
-	"github.com/andrelbuzzo/itm/internal/model"
-	"github.com/andrelbuzzo/itm/internal/stats"
-	"github.com/andrelbuzzo/itm/internal/templates"
+	"github.com/RocketifyLabs/traceline/internal/determinism"
+	"github.com/RocketifyLabs/traceline/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/stats"
+	"github.com/RocketifyLabs/traceline/internal/templates"
 )
 
 // Kinds, stable because they appear in reports and golden files.
@@ -45,7 +45,7 @@ type Config struct {
 	MinLatencyRatio float64
 }
 
-// DefaultConfig matches itm/rca_weights.json.
+// DefaultConfig matches traceline/rca_weights.json.
 func DefaultConfig() Config {
 	return Config{
 		ZThreshold:        3.5,

@@ -26,7 +26,7 @@ that makes a second run differ from the first.
 
 | Package | Responsibility |
 |---|---|
-| `itm` (root) | Version and package documentation. |
+| `traceline` (root) | Version and package documentation. |
 | `internal/model` | Structs: `LogLine`, `Span`, `Edge`, `Anomaly`, `TimelineEvent`, `Candidate`, `Report`. |
 | `internal/ingest` | Tolerant JSONL readers. Skips and counts malformed lines, assigns stable ids. |
 | `internal/templates` | Deterministic log templating: mask numbers, UUIDs, hex, IPs, durations. |
@@ -42,7 +42,7 @@ that makes a second run differ from the first.
 | `internal/cli` | `analyze` / `simulate` / `bench` / `demo`, exit codes, no absolute paths. |
 | `internal/determinism` | `SortedKeys` and the guard that proves map order is a real hazard. |
 | `internal/offline` | Asserts no external dependency and that an offline build succeeds. |
-| `cmd/itm` | Thin `main`, calls `internal/cli`. |
+| `cmd/traceline` | Thin `main`, calls `internal/cli`. |
 
 ## Data flow
 
@@ -79,7 +79,7 @@ Each candidate service accumulates four factors, each normalized to `[0, 1]`:
 | `explains_downstream` | 0.25 | Fraction of downstream anomalous services whose anomaly this candidate precedes. |
 | `not_explained` | 0.10 | 1.0 if no anomalous dependency precedes it, else 0.0. |
 
-Weights live in `itm/rca_weights.json` (loaded at startup, overridable with `--weights`), so
+Weights live in `traceline/rca_weights.json` (loaded at startup, overridable with `--weights`), so
 tuning is a data change, not a code change. That file also holds the anomaly `z_threshold`
 (default 3.5) and the window `change_point_mad_k` (default 5.0).
 

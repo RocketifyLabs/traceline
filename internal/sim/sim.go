@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // Fault types. The first eight are the spec's required set; the ninth is the

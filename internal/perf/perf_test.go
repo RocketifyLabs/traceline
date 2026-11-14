@@ -15,9 +15,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/analyze"
-	"github.com/andrelbuzzo/itm/internal/ingest"
-	"github.com/andrelbuzzo/itm/internal/sim"
+	"github.com/RocketifyLabs/traceline/internal/analyze"
+	"github.com/RocketifyLabs/traceline/internal/ingest"
+	"github.com/RocketifyLabs/traceline/internal/sim"
 )
 
 // budget is the wall-clock limit for parsing plus the full analysis.

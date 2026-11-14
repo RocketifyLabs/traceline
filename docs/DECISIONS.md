@@ -87,3 +87,45 @@ documented decisions, tests that assert behaviour rather than smoke-test it, and
 rebuild, README and the demo remain non-negotiable — the difference is that optional
 robustness (more fault types, better PDF layout, a proper site) is now in scope instead of
 being the first to be cut.
+
+---
+
+## D-004 — Name, module path and repository slug
+
+**Decided:** 2026-11-13 · **Status:** accepted
+
+**Context.** The product was called ITM (Incident Time Machine) during the build. The handoff
+fixed the new product name as **Traceline** but left the repository slug as
+`incident-time-machine`, and asked for the Go module to become
+`github.com/RocketifyLabs/traceline`.
+
+**Decision.** Repo, module and binary are all **`traceline`**:
+`github.com/RocketifyLabs/traceline`, `cmd/traceline`, binary `traceline`.
+
+**Why the slug changed too.** A Go module path that does not match its repository is not
+merely untidy: `go get`/`go install github.com/RocketifyLabs/incident-time-machine` resolves
+the module and then fails the path check, so the `go install` line in the README would not
+work. Matching repo and module keeps `go install` a one-liner and avoids a permanent
+redirect to explain in every issue thread.
+
+**Cost.** The GitHub search terms "incident time machine" no longer match the repo name; the
+README's first paragraph still carries the phrase, and the repo description/topics mention it
+so search still finds it. Renaming a repo later is cheap on GitHub (it redirects), so this is
+reversible.
+
+---
+
+## D-005 — License: AGPL-3.0 with a dual commercial offer
+
+**Decided:** 2026-11-13 · **Status:** accepted
+
+**Decision.** `LICENSE` is AGPL-3.0-or-later (copyright André Luiz Buzzo de Souza), and
+`LICENSING.md` explains the optional commercial license.
+
+**Why not a "no commercial use" license.** See `LICENSING.md`: the OSI definition forbids
+field-of-use restrictions, so such a license would not be open source. AGPL is genuinely open
+source, permits commercial use, and its §13 network clause is exactly the pressure that makes
+a paid license worth buying for anyone who wants to keep modifications private.
+
+**Do not** describe the project as non-commercial anywhere in the docs, the site or the repo
+description.

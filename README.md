@@ -1,10 +1,14 @@
-# Incident Time Machine (ITM)
+<p align="center">
+  <img src="assets/traceline.png" alt="Traceline: a traveller inside an armillary sphere of clocks" width="220">
+</p>
 
-**Feed ITM the logs and traces from an outage and it reconstructs what happened:**
+# Traceline
+
+**Feed Traceline the logs and traces from an outage and it reconstructs what happened:**
 a timeline, a service dependency graph, and a **ranked list of probable root causes with evidence**.
 
 Symptoms are far from causes. A 500 in the edge service is three hops from a connection
-pool that ran dry in a database proxy. ITM reads the raw telemetry from the incident
+pool that ran dry in a database proxy. Traceline reads the raw telemetry from the incident
 window, detects which services actually changed behaviour, and ranks the candidates that
 best explain what the rest of the system did.
 
@@ -53,7 +57,7 @@ minute and each proving one behaviour:
 | [`messy-input/`](fixtures/messy-input/) | four bad lines, four distinct rejection reasons, cause still found |
 
 ```bash
-go run ./cmd/itm analyze   --logs fixtures/pool-exhaustion/logs.jsonl   --spans fixtures/pool-exhaustion/spans.jsonl   --out out/pool
+go run ./cmd/traceline analyze   --logs fixtures/pool-exhaustion/logs.jsonl   --spans fixtures/pool-exhaustion/spans.jsonl   --out out/pool
 ```
 
 ## Try it
@@ -66,7 +70,7 @@ open out/demo/report.html      # self-contained report: no server, no network
 Or against your own capture:
 
 ```bash
-go run ./cmd/itm analyze --logs logs.jsonl --spans spans.jsonl --out out/report
+go run ./cmd/traceline analyze --logs logs.jsonl --spans spans.jsonl --out out/report
 ```
 
 ## Requirements
@@ -96,10 +100,10 @@ See `docs/DECISIONS.md` D-002.
 ## Commands
 
 ```bash
-go run ./cmd/itm analyze  --logs l.jsonl --spans s.jsonl --out out/report
-go run ./cmd/itm simulate --seed 7 --out out/scenario
-go run ./cmd/itm bench    --seeds 1001-1020 --out BENCHMARK.md
-go run ./cmd/itm demo     --out out/demo --seed 7
+go run ./cmd/traceline analyze  --logs l.jsonl --spans s.jsonl --out out/report
+go run ./cmd/traceline simulate --seed 7 --out out/scenario
+go run ./cmd/traceline bench    --seeds 1001-1020 --out BENCHMARK.md
+go run ./cmd/traceline demo     --out out/demo --seed 7
 ```
 
 Exit codes: `0` success · `1` analysis failed or refused · `2` usage error.
@@ -158,7 +162,16 @@ network, the build would fail before a single test ran.
 - [`docs/spec/plan.md`](docs/spec/plan.md) — architecture and package contracts.
 - [`docs/spec/constitution.md`](docs/spec/constitution.md) — the non-negotiables.
 - [`docs/spec/tasks.md`](docs/spec/tasks.md) — progress.
+- [`LICENSING.md`](LICENSING.md) — what the AGPL allows, and when the commercial license matters.
 
 ## License
 
-MIT — see `LICENSE`.
+**AGPL-3.0-or-later**, with a **commercial license available** for use the AGPL does not permit
+(closed-source embedding, or hosting it as a service without publishing your modifications).
+
+Internal and commercial *use* is free and unrestricted under the AGPL; the copyleft obligations
+trigger on distribution and on offering it as a network service. The full text is in
+[`LICENSE`](LICENSE); the practical explanation, including why this is not a
+"non-commercial" license, is in [`LICENSING.md`](LICENSING.md).
+
+Copyright © 2026 André Luiz Buzzo de Souza.

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // A capture where roughly half the timeline is incident must still be detected.

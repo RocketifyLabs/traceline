@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/andrelbuzzo/itm"
+	"github.com/RocketifyLabs/traceline"
 )
 
 // run is the helper every test uses: it drives Run with captured writers.
@@ -35,8 +35,8 @@ func TestVersionExits0(t *testing.T) {
 		if code != ExitOK {
 			t.Fatalf("%s: exit = %d, want 0", flag, code)
 		}
-		if !strings.Contains(stdout, itm.Version) {
-			t.Fatalf("%s: stdout %q missing version %q", flag, stdout, itm.Version)
+		if !strings.Contains(stdout, traceline.Version) {
+			t.Fatalf("%s: stdout %q missing version %q", flag, stdout, traceline.Version)
 		}
 	}
 }
@@ -61,7 +61,7 @@ func TestEachCommandHasHelp(t *testing.T) {
 		if code != ExitOK {
 			t.Errorf("%s --help: exit = %d, want 0", command, code)
 		}
-		if !strings.Contains(stdout, "Usage: itm "+command) {
+		if !strings.Contains(stdout, "Usage: traceline "+command) {
 			t.Errorf("%s --help: stdout %q missing usage line", command, stdout)
 		}
 	}
@@ -96,7 +96,7 @@ func TestAnalyzeMissingFileExits1(t *testing.T) {
 	if code != ExitError {
 		t.Fatalf("exit = %d, want %d (unreadable input is a failure)", code, ExitError)
 	}
-	if !strings.Contains(stderr, "itm analyze:") {
+	if !strings.Contains(stderr, "traceline analyze:") {
 		t.Errorf("stderr = %q, want a prefixed error", stderr)
 	}
 }

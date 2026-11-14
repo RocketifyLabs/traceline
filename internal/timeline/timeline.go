@@ -10,7 +10,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // Kinds, stable because they appear in reports and golden files.

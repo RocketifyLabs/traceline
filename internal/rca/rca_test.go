@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/graph"
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/graph"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 func t0() time.Time { return time.Date(2026, 10, 16, 10, 0, 0, 0, time.UTC) }

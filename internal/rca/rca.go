@@ -14,8 +14,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/graph"
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/graph"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // isMeaningful reports whether an anomaly is evidence that a service is actually
@@ -59,7 +59,7 @@ type Weights struct {
 	NotExplained       float64 `json:"not_explained"`
 }
 
-// DefaultWeights matches itm/rca_weights.json.
+// DefaultWeights matches traceline/rca_weights.json.
 func DefaultWeights() Weights {
 	return Weights{Onset: 0.35, Strength: 0.30, ExplainsDownstream: 0.25, NotExplained: 0.10}
 }
@@ -71,7 +71,7 @@ type Confidence struct {
 	Medium     float64
 }
 
-// DefaultConfidence matches itm/rca_weights.json.
+// DefaultConfidence matches traceline/rca_weights.json.
 func DefaultConfidence() Confidence {
 	return Confidence{HighScore: 0.60, HighMargin: 0.15, Medium: 0.40}
 }

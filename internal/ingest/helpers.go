@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andrelbuzzo/itm/internal/model"
+	"github.com/RocketifyLabs/traceline/internal/model"
 )
 
 // timeLayouts are the timestamp formats accepted, in priority order. RFC 3339
