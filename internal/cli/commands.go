@@ -199,6 +199,12 @@ func runDemoReal(ctx context.Context, args []string, env Env) int {
 		FaultStart: sc.FaultStart, FaultEnd: sc.FaultEnd,
 	}, analyze.DefaultOptions())
 
+	// A simulated scenario is already parsed, so nothing can be skipped: every
+	// record the generator produced was read and accepted. Leaving this at zero
+	// made the report claim "logs accepted 0 / 0 read" for a 9k-line capture,
+	// which is a false statement about the data the ranking was built from.
+	rep.Quality = simulatedQuality(len(sc.Logs), len(sc.Spans))
+
 	if err := report.WriteAll(*outDir, rep, report.Options{
 		Title:   fmt.Sprintf("Incident report — seed %d", sc.Seed),
 		Source:  fmt.Sprintf("simulated scenario seed=%d fault=%s", sc.Seed, sc.Fault),
@@ -240,6 +246,21 @@ func printVerdict(env Env, rep model.Report, outDir string) {
 			top.Service, top.Score, top.Confidence)
 	}
 	fmt.Fprintf(env.Stdout, "wrote %s\n", outDir)
+}
+
+// simulatedQuality reports the data-quality tallies for a generated scenario.
+//
+// There is no parsing step on this path, so the honest numbers are the record
+// counts themselves. A simulated run has nothing to skip; saying so is different
+// from saying nothing.
+func simulatedQuality(logs, spans int) model.DataQuality {
+	return model.DataQuality{
+		LogLinesRead:  logs,
+		LogsAccepted:  logs,
+		SpanLinesRead: spans,
+		SpansAccepted: spans,
+		SkipReasons:   map[string]int{},
+	}
 }
 
 // mergeQuality combines the ingest tallies with the analysis's own counts.

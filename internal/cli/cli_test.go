@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -406,4 +407,54 @@ func itoa(n int) string {
 		n /= 10
 	}
 	return string(d)
+}
+
+// A simulated demo must report its real record counts. Before this test the
+// report claimed "logs accepted 0 / 0 read" for a 9k-line capture — a false
+// statement about the data the ranking was built from, and the kind of number a
+// reader uses to decide whether to trust the result.
+func TestDemoReportsRealDataQuality(t *testing.T) {
+	dir := t.TempDir()
+	code, stdout, stderr := run(t, "demo", "--out", dir, "--seed", "7")
+	if code != ExitOK {
+		t.Fatalf("demo exit = %d, stderr = %q", code, stderr)
+	}
+
+	blob, err := os.ReadFile(filepath.Join(dir, "result.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		DataQuality struct {
+			LogLinesRead  int `json:"log_lines_read"`
+			LogsAccepted  int `json:"logs_accepted"`
+			SpanLinesRead int `json:"span_lines_read"`
+			SpansAccepted int `json:"spans_accepted"`
+		} `json:"data_quality"`
+	}
+	if err := json.Unmarshal(blob, &doc); err != nil {
+		t.Fatal(err)
+	}
+
+	q := doc.DataQuality
+	if q.LogLinesRead == 0 || q.SpanLinesRead == 0 {
+		t.Fatalf("demo reported zero input lines: %+v (stdout: %q)", q, stdout)
+	}
+	if q.LogsAccepted != q.LogLinesRead {
+		t.Errorf("logs accepted %d != read %d; a simulated scenario cannot skip lines",
+			q.LogsAccepted, q.LogLinesRead)
+	}
+	if q.SpansAccepted != q.SpanLinesRead {
+		t.Errorf("spans accepted %d != read %d", q.SpansAccepted, q.SpanLinesRead)
+	}
+
+	// The Markdown must agree with the JSON: two artifacts of one run contradicting
+	// each other is worse than either being wrong alone.
+	md, err := os.ReadFile(filepath.Join(dir, "summary.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(md), "0 / 0 read") {
+		t.Errorf("summary.md still claims zero lines read:\n%s", md)
+	}
 }
