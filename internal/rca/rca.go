@@ -65,10 +65,13 @@ func DefaultWeights() Weights {
 }
 
 // Confidence thresholds.
+//
+// The JSON tags are part of the weights file format: without them the keys would
+// be Go field names ("HighScore") in a file whose neighbours are snake_case.
 type Confidence struct {
-	HighScore  float64
-	HighMargin float64
-	Medium     float64
+	HighScore  float64 `json:"high_score"`
+	HighMargin float64 `json:"high_margin"`
+	Medium     float64 `json:"medium"`
 }
 
 // DefaultConfidence matches traceline/rca_weights.json.

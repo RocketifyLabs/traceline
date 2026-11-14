@@ -41,6 +41,7 @@ Commands:
   simulate   generate a seeded fault-injection scenario
   bench      run the benchmark suite over a seed range
   demo       simulate an incident and analyze it end to end
+  replay     run the same capture twice and diff the two answers
 
 Flags:
   -h, --help       show help for traceline or for a command
@@ -53,6 +54,7 @@ Examples:
   traceline simulate --seed 7 --out out/scenario
   traceline bench --seeds 1001-1020 --out BENCHMARK.md
   traceline demo --out out/demo
+  traceline replay --logs l.jsonl --spans s.jsonl --weights-a tuned.json
 `
 
 // Env carries everything the commands need, so tests can drive the CLI without
@@ -95,6 +97,8 @@ func Run(ctx context.Context, args []string, env Env) int {
 		return runBenchReal(ctx, rest, env)
 	case "demo":
 		return runDemoReal(ctx, rest, env)
+	case "replay":
+		return runReplayReal(ctx, rest, env)
 	default:
 		fmt.Fprintf(env.Stderr, "traceline: unknown command %q\n\n", command)
 		fmt.Fprint(env.Stderr, usage)
@@ -126,7 +130,8 @@ func newFlagSet(name string, env Env) *flag.FlagSet {
 func parse(fs *flag.FlagSet, args []string, env Env, name string) (int, bool) {
 	if err := fs.Parse(args); err != nil {
 		if err == flag.ErrHelp {
-			fs.Usage()
+			// flag.Parse already calls fs.Usage() for -h/--help. Calling it again
+			// here printed the whole flag list twice for every command.
 			return ExitOK, false
 		}
 		fmt.Fprintf(env.Stderr, "traceline %s: %v\n", name, err)

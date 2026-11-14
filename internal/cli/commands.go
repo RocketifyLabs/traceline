@@ -11,6 +11,7 @@ import (
 	"github.com/RocketifyLabs/traceline"
 	"github.com/RocketifyLabs/traceline/internal/analyze"
 	"github.com/RocketifyLabs/traceline/internal/bench"
+	"github.com/RocketifyLabs/traceline/internal/config"
 	"github.com/RocketifyLabs/traceline/internal/ingest"
 	"github.com/RocketifyLabs/traceline/internal/model"
 	"github.com/RocketifyLabs/traceline/internal/report"
@@ -26,7 +27,8 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 	outDir := fs.String("out", "", "output directory (required)")
 	incStart := fs.String("incident-start", "", "ISO 8601 window start (disables detection)")
 	incEnd := fs.String("incident-end", "", "ISO 8601 window end (disables detection)")
-	weights := fs.String("weights", "", "scoring config JSON (default: built-in)")
+	weights := fs.String("weights", "", "scoring config JSON (default: built-in, see rca_weights.json)")
+	openReport := fs.Bool("open", false, "open the generated report in the browser when done")
 	if code, ok := parse(fs, args, env, "analyze"); !ok {
 		return code
 	}
@@ -35,7 +37,15 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 		return ExitUsage
 	}
 	_ = ctx
-	_ = weights
+
+	// A rejected config file is a usage error, not a silent fallback: running with
+	// built-in weights when the operator asked for their own would attribute the
+	// result to their tuning when it came from the defaults.
+	cfg, err := config.Load(*weights)
+	if err != nil {
+		fmt.Fprintf(env.Stderr, "traceline analyze: %v\n", err)
+		return ExitUsage
+	}
 
 	logRes, err := ingest.Logs(*logsPath)
 	if err != nil {
@@ -60,12 +70,17 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 			fmt.Fprint(env.Stderr, "traceline analyze: --incident-start and --incident-end must both be valid ISO 8601\n")
 			return ExitUsage
 		}
-		cfg := windows.DefaultConfig()
-		in.Window = windows.FromExplicit(start, end, cfg)
+		in.Window = windows.FromExplicit(start, end, cfg.Windows)
 		in.HasWindow = true
 	}
 
-	rep := analyze.Run(in, analyze.DefaultOptions())
+	opts := analyze.DefaultOptions()
+	opts.Window = cfg.Windows
+	opts.Anomaly = cfg.Anomaly
+	opts.Weights = cfg.Weights
+	opts.Conf = cfg.Confidence
+
+	rep := analyze.Run(in, opts)
 	// Merge the ingest quality into the report: the analysis cannot know how many
 	// lines were skipped before it saw the data.
 	rep.Quality = mergeQuality(rep.Quality, logRes.Quality, spanRes.Quality)
@@ -80,6 +95,13 @@ func runAnalyzeReal(ctx context.Context, args []string, env Env) int {
 	}
 
 	printVerdict(env, rep, *outDir)
+	if *openReport {
+		if err := openInBrowser(filepath.Join(*outDir, report.HTMLName)); err != nil {
+			// A failure to open a browser must not fail the analysis: the report
+			// was written successfully, and the path was already printed.
+			fmt.Fprintf(env.Stderr, "traceline analyze: %v\n", err)
+		}
+	}
 	return ExitOK
 }
 
@@ -165,6 +187,7 @@ func runDemoReal(ctx context.Context, args []string, env Env) int {
 	fs := newFlagSet("demo", env)
 	outDir := fs.String("out", "out/demo", "output directory")
 	seed := fs.Int("seed", 7, "scenario seed")
+	openReport := fs.Bool("open", false, "open the generated report in the browser when done")
 	if code, ok := parse(fs, args, env, "demo"); !ok {
 		return code
 	}
@@ -199,6 +222,11 @@ func runDemoReal(ctx context.Context, args []string, env Env) int {
 		fmt.Fprintf(env.Stdout, "ranked: insufficient evidence\n")
 	}
 	fmt.Fprintf(env.Stdout, "wrote %s\n", *outDir)
+	if *openReport {
+		if err := openInBrowser(filepath.Join(*outDir, report.HTMLName)); err != nil {
+			fmt.Fprintf(env.Stderr, "traceline demo: %v\n", err)
+		}
+	}
 	return ExitOK
 }
 

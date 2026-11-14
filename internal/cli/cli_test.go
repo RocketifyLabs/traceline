@@ -285,3 +285,125 @@ func TestUnknownFlagExits2(t *testing.T) {
 		t.Fatalf("exit = %d, want %d", code, ExitUsage)
 	}
 }
+
+// writeScenario generates a small scenario into logs and spans paths, so a test
+// that needs a real pipeline run does not depend on a fixture's exact numbers.
+func writeScenario(t *testing.T, logs, spans string) {
+	t.Helper()
+	src := t.TempDir()
+	if code, _, stderr := run(t, "simulate", "--seed", "12", "--out", src); code != ExitOK {
+		t.Fatalf("simulate failed: exit %d, %s", code, stderr)
+	}
+	for _, pair := range [][2]string{
+		{filepath.Join(src, "logs.jsonl"), logs},
+		{filepath.Join(src, "spans.jsonl"), spans},
+	} {
+		blob, err := os.ReadFile(pair[0])
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(pair[1], blob, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+// A --weights file that does not parse must be a usage error, not a silent
+// fallback: running with built-in weights when the operator asked for their own
+// would attribute the result to tuning that was never applied.
+func TestAnalyzeRejectsBadWeightsFile(t *testing.T) {
+	dir := t.TempDir()
+	logs := filepath.Join(dir, "logs.jsonl")
+	spans := filepath.Join(dir, "spans.jsonl")
+	writeScenario(t, logs, spans)
+
+	bad := filepath.Join(dir, "typo.json")
+	// "z_treshold" is the realistic mistake: one letter short, and the value it
+	// was meant to set would have stayed at its default.
+	if err := os.WriteFile(bad, []byte(`{"anomaly":{"z_treshold":9.0}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	code, _, stderr := run(t, "analyze", "--logs", logs, "--spans", spans,
+		"--out", filepath.Join(dir, "out"), "--weights", bad)
+	if code != ExitUsage {
+		t.Fatalf("exit = %d, want %d", code, ExitUsage)
+	}
+	if !strings.Contains(stderr, "z_treshold") {
+		t.Errorf("stderr should name the unknown field, got: %q", stderr)
+	}
+}
+
+// The shipped rca_weights.json must produce byte-identical output to a run with
+// no --weights at all. This is the whole claim of the flag: the file documents
+// the defaults, so passing it cannot change the answer.
+func TestShippedWeightsMatchDefaultRun(t *testing.T) {
+	dir := t.TempDir()
+	logs := filepath.Join(dir, "logs.jsonl")
+	spans := filepath.Join(dir, "spans.jsonl")
+	writeScenario(t, logs, spans)
+
+	shipped := filepath.Join("..", "..", "rca_weights.json")
+	if _, err := os.Stat(shipped); err != nil {
+		t.Fatalf("rca_weights.json is missing from the repo root: %v", err)
+	}
+
+	outA, outB := filepath.Join(dir, "a"), filepath.Join(dir, "b")
+	if code, _, stderr := run(t, "analyze", "--logs", logs, "--spans", spans, "--out", outA); code != ExitOK {
+		t.Fatalf("default run failed: exit %d, %s", code, stderr)
+	}
+	if code, _, stderr := run(t, "analyze", "--logs", logs, "--spans", spans,
+		"--out", outB, "--weights", shipped); code != ExitOK {
+		t.Fatalf("run with shipped weights failed: exit %d, %s", code, stderr)
+	}
+
+	a, err := os.ReadFile(filepath.Join(outA, "result.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(outB, "result.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(a, b) {
+		t.Errorf("rca_weights.json changed the result; it must document the defaults exactly\n%s", firstDiff(string(a), string(b)))
+	}
+}
+
+// firstDiff reports the first differing region, so a failure says what changed
+// instead of dumping two long JSON documents.
+func firstDiff(a, b string) string {
+	if a == b {
+		return "(identical)"
+	}
+	n := len(a)
+	if len(b) < n {
+		n = len(b)
+	}
+	for i := 0; i < n; i++ {
+		if a[i] != b[i] {
+			lo := i - 60
+			if lo < 0 {
+				lo = 0
+			}
+			hi := i + 60
+			if hi > n {
+				hi = n
+			}
+			return "at byte " + itoa(i) + ":\n  default: ..." + a[lo:hi] + "...\n  weights: ..." + b[lo:hi] + "..."
+		}
+	}
+	return "one document is a prefix of the other"
+}
+
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	var d []byte
+	for n > 0 {
+		d = append([]byte{byte(48 + n%10)}, d...)
+		n /= 10
+	}
+	return string(d)
+}

@@ -14,7 +14,7 @@ published repo, not recalled from conversation.
 | Working directory | `D:\Projetos\omnirush-buildhaton-guide` |
 | Branch / remote | `master` → `origin` = `github.com/RocketifyLabs/traceline` |
 | Repo | public, AGPL-3.0 (GitHub identifies it as `AGPL-3.0`) |
-| Tasks done | 24 of 25 delivered; T21 (demo video) was **deselected**, not pending |
+| Tasks done | 27 of 28 delivered; T21 (demo video) was **deselected**, not pending |
 | Tests | 163, 17 packages, green |
 | Verification | `go test -count=1 -short ./...` and `GOPROXY=off CGO_ENABLED=0 go build ./...` |
 | Binary | 5.2 MB static, zero external Go dependencies |
@@ -105,7 +105,7 @@ practical, so those want CI runners. `gui/README.md` carries the per-OS commands
 | `docs/DECISIONS.md` | D-001 Go, D-002 no PNG, D-003 scope, D-004 name/slug, D-005 license |
 | `docs/PROGRESS.md` | Task table, measured results, the 15 bugs found during the build |
 | `docs/spec/constitution.md` | Non-negotiables: determinism, offline, stdlib-only, no black box |
-| `docs/spec/spec.md` | FR-1..FR-12 with acceptance criteria, §13 demo video script |
+| `docs/spec/spec.md` | FR-1..FR-12 with acceptance criteria and non-functional requirements |
 | `docs/spec/tasks.md` | T01..T24 ticked; T21 deselected with the reason recorded |
 | `api.go` | The public library API the GUI calls |
 | `gui/README.md` | The window: why it is a second module, how to build it per OS |
@@ -147,7 +147,6 @@ practical, so those want CI runners. `gui/README.md` carries the per-OS commands
 no consumer; the owner will record one in the future only if a concrete need appears. Do not
 treat it as backlog and do not re-propose it.
 
-Nothing is blocked by it. The script in `docs/spec/spec.md` §13 is accurate and every command in
-it is verified, so recording later is a screen-capture session over existing behaviour.
-`site/index.html` is a live clickable walkthrough, and the GUI's **Generate demo** button now
-produces the same full run in one click.
+Nothing is blocked by it, and no walkthrough script is kept for it: the commands a recording
+would show are the ones in the README, all verified. `site/index.html` is a live clickable
+walkthrough, and the GUI's **Generate demo** button produces a full run in one click.

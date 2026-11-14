@@ -100,10 +100,9 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
 - [~] **T21 Demo video.** Deselected on 2026-11-14, not deferred.
   **Reason:** the buildathon deadline has passed, so a submission video has no consumer. The
   owner will record one in the future only if a concrete need appears; it is not a backlog item.
-  **Nothing is blocked by it.** The script in `docs/spec/spec.md` §13 is still accurate and every
-  command in it is verified working, so recording later is a screen-capture session over existing
-  behaviour, not remaining development. `site/index.html` is a live clickable version of the same
-  walkthrough, and the GUI's **Generate demo** button now produces the same full run in one click.
+  **Nothing is blocked by it.** No walkthrough script is kept for it: the commands a recording would
+  show are the ones in the README, all verified. `site/index.html` is a live clickable version of
+  the same walkthrough, and the GUI's **Generate demo** button produces a full run in one click.
 - [x] **T23 Hand-checked fixtures.** `fixtures/` with three small captures (a real incident,
   a healthy capture, a dirty capture), each documented with its expected result and asserted
   by `internal/fixtures`.
@@ -123,3 +122,19 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` done and verified
   the same `AnalyzeFiles`/`AnalyzeScenario` calls the window makes are the CLI's pipeline.
   **Not verified here:** Linux and macOS builds — each needs its own C toolchain and GL
   headers, so those want CI runners. `gui/README.md` states the packages required.
+
+- [x] **T25 Tuning file that is real.** `rca_weights.json` at the repo root plus `internal/config`,
+  which loads it, validates it and rejects unknown keys. `--weights` was parsed and silently
+  ignored before this; four docs promised a file that did not exist.
+  **Accept:** `--weights rca_weights.json` produces byte-identical output to a run with no flag
+  (asserted by a test in `internal/cli`); a misspelled key exits 2 and names the key; weights that
+  do not sum to 1.0 are rejected.
+- [x] **T26 Replay.** `traceline replay` runs the same capture twice under different weights and/or
+  incident windows and reports how the ranking moved, with `--markdown` for a postmortem.
+  `internal/replay` does the diff; state rewind stays out of scope.
+  **Accept:** identical options report no change; two runs that both find nothing agree instead of
+  reporting a phantom change; the summary is deterministic across runs (map iteration sorted).
+- [x] **T27 `--open`.** `analyze` and `demo` open the generated report in the platform's default
+  handler when the flag is given. Opt-in, so CI and scripts never pop a window.
+  **Accept:** the report path is printed as before; a launcher failure is reported on stderr and
+  does not change the exit code, because the report was written successfully.

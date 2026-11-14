@@ -3,7 +3,7 @@
 Continuous record of what is done, what is mocked, and what genuinely needs a decision.
 Last updated at the end of the autonomous build run.
 
-## Status: 24 of 25 delivered; T21 (demo video) deselected, not pending
+## Status: 27 of 28 delivered; T21 (demo video) deselected, not pending
 
 | Task | State |
 |---|---|
@@ -32,6 +32,9 @@ Last updated at the end of the autonomous build run.
 | T23 hand-checked fixtures | done |
 | T24 desktop GUI (`gui/`, Fyne + CGO) | done on Windows |
 | T25 rename, license, publish | done — public at `RocketifyLabs/traceline` |
+| T26 tuning file + `internal/config` | done — `--weights` now actually loads |
+| T27 replay | done — `traceline replay`, `internal/replay` |
+| T28 `--open` | done — `analyze` / `demo` |
 
 ## Measured results
 
@@ -75,18 +78,6 @@ There are no stubs or fakes in the delivered code. Every command does its real w
 
 The simulator is not a mock of anything external — it is a product feature, the benchmark's
 ground truth. That is stated in the README where the numbers are.
-
-## Blocked: T21 demo video
-
-Recording a 2-3 minute screen capture is outside what this environment can do. Nothing is
-fake-substituted for it.
-
-What exists instead:
-- The demo script is written in `docs/spec/spec.md` §13.
-- Every command it calls is verified working.
-- `site/index.html` is a live, clickable version of the same walkthrough: 3 real reports
-  plus the benchmark table, openable from `file://`.
-- `make demo` reproduces the demo segment exactly and prints HIT/MISS.
 
 ## Open items that genuinely need a human decision
 

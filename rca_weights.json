@@ -1,0 +1,40 @@
+{
+  "_comment": [
+    "Analysis tuning for Traceline. Every value here is the built-in default, so a run with",
+    "no --weights is identical to a run with this file. Copy it, edit what you need, and pass",
+    "it with `--weights path/to/file.json`. Unknown keys are rejected on purpose: a misspelled",
+    "threshold must not leave you believing you set something you did not.",
+    "Durations are Go duration strings: \"20m\", \"10s\", \"1h30m\"."
+  ],
+
+  "windows": {
+    "_comment": "How much history is baseline and where the incident starts.",
+    "baseline_cap": "20m",
+    "bin_size": "10s",
+    "mad_k": 5.0,
+    "consecutive_bins": 2
+  },
+
+  "anomaly": {
+    "_comment": "When a service counts as having changed behaviour.",
+    "z_threshold": 3.5,
+    "min_events": 3,
+    "min_error_rate_delta": 0.10,
+    "min_latency_ratio": 1.5
+  },
+
+  "weights": {
+    "_comment": "Factor weights. They must sum to 1.0 so a perfect candidate scores exactly 1.0.",
+    "onset": 0.35,
+    "strength": 0.30,
+    "explains_downstream": 0.25,
+    "not_explained": 0.10
+  },
+
+  "confidence": {
+    "_comment": "Score and margin thresholds for the high/medium/low label.",
+    "high_score": 0.60,
+    "high_margin": 0.15,
+    "medium": 0.40
+  }
+}

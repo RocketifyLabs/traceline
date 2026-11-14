@@ -1,0 +1,182 @@
+# Traceline CI — one workflow, three jobs, hard time budget.
+#
+# Design constraints (see BENCHMARK.md and the owner's notes):
+#
+#   * Every job carries `timeout-minutes`. A hung job is stopped by the per-JOB
+#     timeout only; a per-step timeout does not kill a job that stalls between
+#     steps. This repo shares runner capacity with other projects, so no job is
+#     allowed to sit on a runner indefinitely.
+#   * `concurrency` with `cancel-in-progress` means a rapid push cancels the
+#     superseded run instead of queueing a second full matrix behind it.
+#   * `paths-ignore` skips docs-only pushes: markdown, the static site and the
+#     assets never affect a Go build.
+#   * Go module cache and build cache are restored by actions/setup-go so a
+#     warm run finishes in well under a minute.
+#
+# Budget: 10 + 10 + 20 = 40 minutes worst case for a single run, and only if
+# every job hangs at its ceiling. Typical wall clock is ~1 minute for `core`,
+# ~10 seconds for `reproducibility`, and a few minutes for `gui` (apt + CGO).
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'site/**'
+      - 'assets/**'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'site/**'
+      - 'assets/**'
+
+# A newer push to the same ref kills the older run. This is what keeps a burst
+# of commits from stacking up on the shared runner pool.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# The workflow only reads the repo. Narrow the token so a compromised action
+# cannot push, tag or open issues.
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # core: formatting, vet, build, the -short test suite, and the offline proof.
+  # ---------------------------------------------------------------------------
+  core:
+    name: core (fmt, vet, build, test, offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The core module must stay standard-library only, so no C toolchain is
+    # involved here. This is set per job and NOT workflow-wide on purpose: the
+    # gui job needs CGO_ENABLED=1, and a global default would silently fight it.
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          # Single source of truth: the `go` directive in go.mod.
+          go-version-file: go.mod
+          # This module has no go.sum (no dependencies, by design), so hash
+          # go.mod itself as the cache key.
+          cache: true
+          cache-dependency-path: go.mod
+
+      - name: gofmt (fail if any file is unformatted)
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "::error::gofmt found unformatted files:"
+            echo "$unformatted"
+            exit 1
+          fi
+          echo "gofmt: clean"
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test (-short)
+        run: CGO_ENABLED=0 go test -count=1 -short ./...
+
+      # The central claim of the product: the module graph contains nothing
+      # outside the standard library, proven by building with the proxy off.
+      - name: offline proof (GOPROXY=off)
+        run: GOPROXY=off CGO_ENABLED=0 go build ./...
+
+  # ---------------------------------------------------------------------------
+  # reproducibility: the README's byte-identical claim, actually executed.
+  # Two runs of the same seed must produce the same bytes on disk.
+  # ---------------------------------------------------------------------------
+  reproducibility:
+    name: reproducibility (seed 7, run twice, diff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.mod
+
+      - name: Build
+        run: CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o ./traceline ./cmd/traceline
+
+      - name: Generate the report twice
+        run: |
+          ./traceline demo --seed 7 --out out/a
+          ./traceline demo --seed 7 --out out/b
+
+      - name: Assert byte-identical output
+        run: |
+          if ! diff -r out/a out/b; then
+            echo "::error::demo --seed 7 is not reproducible: out/a and out/b differ"
+            exit 1
+          fi
+          echo "reproducible: $(find out/a -type f | wc -l) files identical across two runs"
+
+      - name: Preserve both outputs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducibility-diff
+          path: |
+            out/a
+            out/b
+          retention-days: 3
+
+  # ---------------------------------------------------------------------------
+  # gui: the first Linux build of the Fyne window. Separate module, needs CGO
+  # and the OpenGL/X11 headers. Expected to be the fragile job.
+  # ---------------------------------------------------------------------------
+  gui:
+    name: gui (linux CGO build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Fyne binds OpenGL through CGO: this job must build with the C toolchain.
+    env:
+      CGO_ENABLED: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: gui/go.mod
+          cache: true
+          cache-dependency-path: gui/go.sum
+
+      # Fyne needs a C toolchain and the GL/X11 headers on Linux.
+      - name: Install C toolchain and GL/X11 headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc \
+            libgl1-mesa-dev \
+            xorg-dev \
+            libxkbcommon-dev
+
+      - name: Build the GUI (CGO enabled)
+        working-directory: gui
+        env:
+          CGO_ENABLED: '1'
+        run: go build -o /tmp/traceline-gui .

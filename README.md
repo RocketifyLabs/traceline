@@ -14,7 +14,7 @@
   <a href="LICENSING.md"><img alt="Commercial license available" src="https://img.shields.io/badge/commercial%20license-available-2ea44f?style=flat-square"></a>
   <img alt="Go 1.27" src="https://img.shields.io/badge/1.27-00ADD8?style=flat-square&logo=go&logoColor=white">
   <img alt="Zero dependencies" src="https://img.shields.io/badge/dependencies-0-2ea44f?style=flat-square">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-168%20in%2017%20packages-2ea44f?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-192%20in%2019%20packages-2ea44f?style=flat-square">
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@
 
 - [Results](#results) · [Fixtures](#fixtures) · [Try it](#try-it)
 - [Desktop app](#desktop-app) · [Commands](#commands) · [Output](#output)
-- [How the ranking works](#how-the-ranking-works) · [Input format](#input-format)
+- [How the ranking works](#how-the-ranking-works) · [Replay](#replay) · [Tuning](#tuning) · [Input format](#input-format)
 - [Requirements](#requirements) · [Test](#test) · [Docs](#docs) · [License](#license)
 
 Symptoms are far from causes. A 500 in the edge service is three hops from a connection
@@ -157,9 +157,57 @@ go run ./cmd/traceline analyze  --logs l.jsonl --spans s.jsonl --out out/report
 go run ./cmd/traceline simulate --seed 7 --out out/scenario
 go run ./cmd/traceline bench    --seeds 1001-1020 --out BENCHMARK.md
 go run ./cmd/traceline demo     --out out/demo --seed 7
+go run ./cmd/traceline replay   --logs l.jsonl --spans s.jsonl --weights-a tuned.json
 ```
 
-Exit codes: `0` success · `1` analysis failed or refused · `2` usage error.
+Installed as a binary, drop the `go run ./cmd/traceline` prefix.
+
+`--open` on `analyze` and `demo` opens the generated report in your browser when
+the run finishes. Exit codes: `0` success · `1` analysis failed or refused · `2`
+usage error.
+
+## Replay
+
+The same capture, read two ways. `replay` runs the full pipeline twice — under two
+sets of weights, or two incident windows — and diffs the two answers:
+
+```bash
+# Does the ranking depend on the weights?
+traceline replay --logs l.jsonl --spans s.jsonl --weights-a aggressive.json
+
+# Would a different incident window name a different cause?
+traceline replay --logs l.jsonl --spans s.jsonl \
+  --incident-start-a 2026-10-16T10:01:00Z \
+  --incident-end-a   2026-10-16T10:05:00Z
+
+# Write the comparison as Markdown for a postmortem
+traceline replay --logs l.jsonl --spans s.jsonl --markdown out/replay.md
+```
+
+```
+run A (A (weights custom.json)) vs run B (B (defaults))
+  verdict  A: cause named   B: cause named   (unchanged)
+  top-1    A: db-proxy      B: db-proxy      (unchanged)
+
+  service          A            B
+  api             #3 0.80      #3 0.65
+  db-proxy        #1 1.00      #1 1.00
+  web             #2 0.90      #2 0.75
+```
+
+This is analysis replay, not state rewind: it re-reads a capture, it does not
+replay the system's behaviour. It answers a question a single run cannot — "how
+much does my answer depend on my assumptions?"
+
+## Tuning
+
+The defaults live in [`rca_weights.json`](rca_weights.json), which is also the
+documented starting point to copy and edit. A run with `--weights rca_weights.json`
+is **byte-identical** to a run without it, and a test asserts exactly that.
+
+Unknown keys and impossible values are rejected rather than ignored: a misspelled
+threshold that silently left you on the defaults would let you attribute a result
+to tuning you never applied.
 
 ## How the ranking works
 
@@ -218,6 +266,8 @@ network, the build would fail before a single test ran.
 - [`LICENSING.md`](LICENSING.md) — what the AGPL allows, and when the commercial license matters.
 - [`gui/README.md`](gui/README.md) — the desktop window, and why it is a second module.
 - [`api.go`](api.go) — the public library API the GUI uses.
+- [`docs/REAL-DATA-BENCHMARK.md`](docs/REAL-DATA-BENCHMARK.md) — how to validate against real incidents, and what would count as a win.
+- [`rca_weights.json`](rca_weights.json) — the tuning file, with every default documented inline.
 
 ## License
 
