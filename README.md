@@ -1,11 +1,45 @@
 <p align="center">
-  <img src="assets/traceline.png" alt="Traceline: a traveller inside an armillary sphere of clocks" width="220">
+  <img src="assets/traceline.png" alt="Traceline: a traveller inside an armillary sphere of clocks" width="200">
 </p>
 
-# Traceline
+<h1 align="center">Traceline</h1>
 
-**Feed Traceline the logs and traces from an outage and it reconstructs what happened:**
-a timeline, a service dependency graph, and a **ranked list of probable root causes with evidence**.
+<p align="center">
+  <b>Feed it the logs and traces from an outage and it reconstructs what happened.</b><br>
+  A timeline, a dependency graph, and a ranked list of probable root causes with evidence.
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-1f6feb?style=flat-square"></a>
+  <a href="LICENSING.md"><img alt="Commercial license available" src="https://img.shields.io/badge/commercial%20license-available-2ea44f?style=flat-square"></a>
+  <img alt="Go 1.27" src="https://img.shields.io/badge/1.27-00ADD8?style=flat-square&logo=go&logoColor=white">
+  <img alt="Zero dependencies" src="https://img.shields.io/badge/dependencies-0-2ea44f?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-168%20in%2017%20packages-2ea44f?style=flat-square">
+</p>
+
+<p align="center">
+  <img alt="Top-1 accuracy" src="https://img.shields.io/badge/top--1%20accuracy-97.0%25%20%C2%B11.5-1f6feb?style=flat-square">
+  <img alt="Vet and gofmt clean" src="https://img.shields.io/badge/go%20vet%20%2B%20gofmt-clean-2ea44f?style=flat-square">
+  <img alt="Last commit" src="https://img.shields.io/github/last-commit/RocketifyLabs/traceline?style=flat-square">
+  <img alt="Repo size" src="https://img.shields.io/github/repo-size/RocketifyLabs/traceline?style=flat-square">
+</p>
+
+<p align="center">
+  <img alt="Binary 3.6 MB static" src="https://img.shields.io/badge/binary-3.6%20MB%20static-8957e5?style=flat-square">
+  <img alt="Container 11.4 MB distroless" src="https://img.shields.io/badge/container-11.4%20MB%20distroless-8957e5?style=flat-square">
+  <img alt="Offline" src="https://img.shields.io/badge/network-none%20at%20runtime-2ea44f?style=flat-square">
+  <img alt="Deterministic" src="https://img.shields.io/badge/output-byte--identical-2ea44f?style=flat-square">
+  <img alt="GUI" src="https://img.shields.io/badge/desktop-Windows%20%C2%B7%20Linux%20%C2%B7%20macOS-8957e5?style=flat-square">
+</p>
+
+---
+
+## Contents
+
+- [Results](#results) · [Fixtures](#fixtures) · [Try it](#try-it)
+- [Desktop app](#desktop-app) · [Commands](#commands) · [Output](#output)
+- [How the ranking works](#how-the-ranking-works) · [Input format](#input-format)
+- [Requirements](#requirements) · [Test](#test) · [Docs](#docs) · [License](#license)
 
 Symptoms are far from causes. A 500 in the edge service is three hops from a connection
 pool that ran dry in a database proxy. Traceline reads the raw telemetry from the incident
