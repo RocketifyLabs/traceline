@@ -41,6 +41,10 @@
 - [How the ranking works](#how-the-ranking-works) · [Replay](#replay) · [Tuning](#tuning) · [Input format](#input-format)
 - [Requirements](#requirements) · [Test](#test) · [Docs](#docs) · [License](#license)
 
+<p align="center">
+  <img src="assets/demo.gif" alt="Traceline CLI: version, then a seeded demo that reconstructs an incident and ranks orders as the cause" width="820">
+</p>
+
 Symptoms are far from causes. A 500 in the edge service is three hops from a connection
 pool that ran dry in a database proxy. Traceline reads the raw telemetry from the incident
 window, detects which services actually changed behaviour, and ranks the candidates that
@@ -146,7 +150,11 @@ One run produces, in the output directory:
 | `summary.md` | Short Markdown summary for a postmortem. |
 | `result.json` | Machine-readable ranked causes with evidence ids. |
 
-PNG is deliberately not produced: raster text needs a font renderer, and vector output is
+<p align="center">
+  <img src="assets/report-preview.png" alt="The generated report.html: verdict card, ranked causes with score breakdown, and the candidate-score chart" width="760">
+</p>
+
+PNG is deliberately not produced **as a report artifact**: raster text needs a font renderer, and vector output is
 crisper, diffable and golden-testable. Export from the browser if you need a raster.
 See `docs/DECISIONS.md` D-002.
 
